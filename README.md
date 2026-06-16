@@ -1,47 +1,26 @@
-# My Portfolio Polished
+# Portfolio Mobile Fix
 
-Dynamic portfolio app using:
+Replace your existing `public/index.html` with the file inside this ZIP.
 
-- Express
-- SQLite
-- Express Session
-- bcryptjs
-- multer
-- HTML + Tailwind CDN
+This update fixes:
+- mobile overflow layout
+- hero title size on mobile
+- photo no longer crops after upload (`object-contain`)
+- smoother modern animations
+- contact cards include Copy and Open buttons
 
-Dynamic data:
-
-- Hero and About content
-- Profile photo
-- Skills
-- Experience
-- Contact
-
-## Run locally
+After replacing the file:
 
 ```bash
-cp .env.example .env
-npm install
-npm start
+git add public/index.html
+git commit -m "fix mobile layout and contact copy actions"
+git push origin main
 ```
 
-Open:
+On server:
 
-```text
-http://127.0.0.1:3000
-```
-
-Admin page:
-
-```text
-http://127.0.0.1:3000/admin.html
-```
-
-## Production note
-
-Use persistent paths outside Git repo:
-
-```text
-DB_PATH=/var/lib/portfolio/portfolio.db
-UPLOAD_DIR=/var/lib/portfolio/uploads
+```bash
+cd /var/www/my-portfolio
+git pull origin main
+pm2 restart my-portfolio
 ```

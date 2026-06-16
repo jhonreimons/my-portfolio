@@ -34,26 +34,22 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
-    :root {
-      --bg-1: #eef8ff;
-      --bg-2: #f7f4ff;
-      --bg-3: #ecfbf7;
-      --ink: #172033;
-    }
+    * { box-sizing: border-box; }
 
-    * {
-      box-sizing: border-box;
+    html, body {
+      width: 100%;
+      max-width: 100%;
+      overflow-x: hidden;
     }
 
     body {
       font-family: Inter, system-ui, sans-serif;
+      color: #172033;
       background:
         radial-gradient(circle at 8% 12%, rgba(6, 182, 212, 0.16), transparent 28rem),
         radial-gradient(circle at 92% 8%, rgba(124, 58, 237, 0.12), transparent 26rem),
         radial-gradient(circle at 80% 82%, rgba(249, 115, 22, 0.09), transparent 24rem),
-        linear-gradient(135deg, var(--bg-1) 0%, #f8fbff 44%, var(--bg-2) 100%);
-      color: var(--ink);
-      overflow-x: hidden;
+        linear-gradient(135deg, #eef8ff 0%, #f8fbff 45%, #f7f4ff 100%);
     }
 
     .noise {
@@ -70,7 +66,7 @@
     }
 
     .glass {
-      background: rgba(255, 255, 255, 0.66);
+      background: rgba(255, 255, 255, 0.68);
       backdrop-filter: blur(20px);
       border: 1px solid rgba(255, 255, 255, 0.78);
     }
@@ -82,20 +78,11 @@
       color: transparent;
     }
 
-    .orb {
-      position: absolute;
-      border-radius: 999px;
-      filter: blur(12px);
-      opacity: .72;
-      animation: floatOrb 9s ease-in-out infinite;
-    }
-
-    .orb:nth-child(2) {
-      animation-delay: -2.5s;
-    }
-
-    .orb:nth-child(3) {
-      animation-delay: -5s;
+    .hero-word {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(16px);
+      animation: wordRise .72s cubic-bezier(.16, 1, .3, 1) forwards;
     }
 
     .reveal {
@@ -109,16 +96,40 @@
       transform: translateY(0);
     }
 
-    .marquee-track {
-      animation: marquee 22s linear infinite;
+    .orb {
+      position: absolute;
+      border-radius: 999px;
+      filter: blur(12px);
+      opacity: .65;
+      animation: floatOrb 9s ease-in-out infinite;
     }
 
-    .marquee:hover .marquee-track {
-      animation-play-state: paused;
+    .orb:nth-child(2) { animation-delay: -2.5s; }
+    .orb:nth-child(3) { animation-delay: -5s; }
+
+    .marquee-track { animation: marquee 24s linear infinite; }
+    .marquee:hover .marquee-track { animation-play-state: paused; }
+
+    .profile-card { animation: cardFloat 6.5s ease-in-out infinite; }
+
+    .shine {
+      position: relative;
+      overflow: hidden;
     }
 
-    .profile-card {
-      animation: cardFloat 6.5s ease-in-out infinite;
+    .shine::after {
+      content: "";
+      position: absolute;
+      inset: -120% auto auto -50%;
+      width: 45%;
+      height: 320%;
+      transform: rotate(18deg);
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .36), transparent);
+      animation: shineMove 5.5s ease-in-out infinite;
+    }
+
+    @keyframes wordRise {
+      to { opacity: 1; transform: translateY(0); }
     }
 
     @keyframes floatOrb {
@@ -126,23 +137,52 @@
       50% { transform: translate3d(10px, -16px, 0) scale(1.05); }
     }
 
-    @keyframes cardFloat {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
-    }
-
     @keyframes marquee {
       0% { transform: translateX(0); }
       100% { transform: translateX(-50%); }
     }
 
+    @keyframes cardFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    @keyframes shineMove {
+      0%, 38% { transform: translateX(-80%) rotate(18deg); }
+      58%, 100% { transform: translateX(360%) rotate(18deg); }
+    }
+
+    @media (max-width: 640px) {
+      .hero-title {
+        font-size: clamp(2rem, 11vw, 3.05rem) !important;
+        line-height: 1.05 !important;
+        letter-spacing: -0.045em !important;
+      }
+
+      .mobile-section {
+        padding-top: 3rem !important;
+        padding-bottom: 3rem !important;
+      }
+
+      .mobile-card {
+        border-radius: 1.45rem !important;
+      }
+
+      .profile-card {
+        animation: none;
+      }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       .orb,
       .profile-card,
-      .marquee-track {
+      .marquee-track,
+      .shine::after,
+      .hero-word {
         animation: none;
       }
 
+      .hero-word,
       .reveal {
         opacity: 1;
         transform: none;
@@ -155,18 +195,18 @@
   <div class="noise"></div>
 
   <header class="sticky top-0 z-40 px-4 py-4">
-    <nav class="mx-auto flex max-w-6xl items-center justify-between rounded-3xl px-4 py-3 glass shadow-soft">
-      <a href="/" class="flex items-center gap-3">
+    <nav class="mx-auto flex w-full max-w-6xl items-center justify-between rounded-3xl px-4 py-3 glass shadow-soft">
+      <a href="/" class="flex min-w-0 items-center gap-3">
         <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-ocean via-aqua to-mint text-sm font-black text-white shadow-card">
           JR
         </div>
-        <div>
-          <p class="text-sm font-black text-ink sm:text-base">Jhon Reimon Siagian</p>
-          <p class="text-xs font-semibold text-muted">DevOps Engineer</p>
+        <div class="min-w-0">
+          <p class="truncate text-sm font-black text-ink sm:text-base">Jhon Reimon Siagian</p>
+          <p class="truncate text-xs font-semibold text-muted">DevOps Engineer</p>
         </div>
       </a>
 
-      <nav class="hidden gap-5 text-sm font800 font-bold text-slate-600 md:flex">
+      <nav class="hidden gap-5 text-sm font-bold text-slate-600 md:flex">
         <a href="#about" class="transition hover:text-ocean">About</a>
         <a href="#skills" class="transition hover:text-ocean">Skills</a>
         <a href="#experience" class="transition hover:text-ocean">Experience</a>
@@ -176,24 +216,24 @@
   </header>
 
   <main>
-    <section class="relative mx-auto grid min-h-[calc(100vh-88px)] max-w-6xl items-center gap-10 px-4 pb-16 pt-8 lg:grid-cols-[1.06fr_0.94fr]">
+    <section class="relative mx-auto grid min-h-[calc(100vh-88px)] w-full max-w-6xl items-center gap-10 px-4 pb-14 pt-8 lg:grid-cols-[1.04fr_0.96fr]">
       <div class="pointer-events-none absolute right-5 top-16 hidden h-72 w-72 rounded-full bg-cyan-300/20 blur-3xl lg:block"></div>
 
-      <div class="reveal relative z-10">
-        <div id="heroBadge" class="mb-5 inline-flex rounded-full border border-white/80 bg-white/70 px-4 py-2 text-xs font900 font-black tracking-wide text-ocean shadow-card">
+      <div class="reveal relative z-10 min-w-0">
+        <div id="heroBadge" class="mb-5 inline-flex max-w-full rounded-full border border-white/80 bg-white/70 px-4 py-2 text-xs font-black tracking-wide text-ocean shadow-card">
           Cloud Infrastructure • Automation • Reliability
         </div>
 
-        <h1 class="max-w-4xl text-[clamp(2.75rem,6vw,5.8rem)] font-black leading-[0.98] tracking-[-0.055em] text-ink">
-          <span id="heroTitleLine1">Building reliable cloud systems with</span>
-          <span id="heroTitleHighlight" class="gradient-text block">DevOps precision.</span>
+        <h1 class="hero-title max-w-4xl break-words text-[clamp(2.5rem,5.4vw,4.9rem)] font-black leading-[1.02] tracking-[-0.052em] text-ink">
+          <span id="heroTitleLine1" class="hero-animated-line">Building reliable cloud systems with</span>
+          <span id="heroTitleHighlight" class="hero-animated-line gradient-text block">DevOps precision.</span>
         </h1>
 
-        <p id="heroDescription" class="mt-6 max-w-2xl text-[clamp(1rem,1.3vw,1.15rem)] leading-8 text-slate-600">
+        <p id="heroDescription" class="mt-6 max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">
           I am a DevOps / Cloud Engineer focused on AWS, CI/CD, monitoring, automation, and scalable, secure, and maintainable cloud infrastructure.
         </p>
 
-        <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+        <div class="mt-8 grid gap-3 sm:flex sm:flex-row">
           <a id="heroPrimaryButton" href="#contact" class="rounded-2xl bg-ink px-5 py-3 text-center text-sm font-black text-white shadow-card transition hover:-translate-y-1 hover:bg-slate-800">
             Contact Me
           </a>
@@ -202,21 +242,21 @@
           </a>
         </div>
 
-        <div class="marquee mt-10 max-w-3xl overflow-hidden rounded-2xl border border-white/80 bg-white/58 py-3 shadow-card">
+        <div class="marquee mt-9 max-w-full overflow-hidden rounded-2xl border border-white/80 bg-white/58 py-3 shadow-card">
           <div id="marqueeTrack" class="marquee-track flex w-max gap-3 whitespace-nowrap px-3 text-xs font-black text-slate-600"></div>
         </div>
       </div>
 
-      <div class="reveal relative mx-auto w-full max-w-md lg:ml-auto">
+      <div class="reveal relative mx-auto w-full max-w-[360px] lg:ml-auto">
         <div class="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-blue-500/18 via-cyan-400/18 to-emerald-400/14 blur-2xl"></div>
 
-        <div class="profile-card relative overflow-hidden rounded-[2rem] bg-white/78 p-4 shadow-soft ring-1 ring-white/80">
-          <div class="relative overflow-hidden rounded-[1.55rem] bg-gradient-to-br from-ocean via-aqua to-grape p-2">
+        <div class="profile-card mobile-card relative overflow-hidden rounded-[2rem] bg-white/78 p-4 shadow-soft ring-1 ring-white/80">
+          <div class="shine relative overflow-hidden rounded-[1.55rem] bg-gradient-to-br from-ocean via-aqua to-grape p-2">
             <div class="orb left-6 top-8 h-20 w-20 bg-white/28"></div>
             <div class="orb bottom-8 right-7 h-24 w-24 bg-cyan-200/32"></div>
             <div class="orb right-14 top-28 h-16 w-16 bg-emerald-200/30"></div>
 
-            <div id="photoBox" class="relative z-10 flex aspect-[4/4.6] items-center justify-center overflow-hidden rounded-[1.25rem] bg-white/18">
+            <div id="photoBox" class="relative z-10 flex aspect-[4/4.9] items-center justify-center overflow-hidden rounded-[1.25rem] bg-white/22">
               <div class="text-center text-white">
                 <div class="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-white/22 text-3xl font-black">JR</div>
                 <p class="mt-4 text-sm font-black">Profile photo</p>
@@ -235,11 +275,11 @@
       </div>
     </section>
 
-    <section id="about" class="mx-auto max-w-6xl px-4 py-14">
-      <div class="reveal grid gap-8 rounded-[2rem] bg-white/70 p-6 shadow-soft ring-1 ring-white/80 md:p-8 lg:grid-cols-[0.9fr_1.1fr]">
+    <section id="about" class="mobile-section mx-auto max-w-6xl px-4 py-14">
+      <div class="reveal mobile-card grid gap-8 rounded-[2rem] bg-white/70 p-6 shadow-soft ring-1 ring-white/80 md:p-8 lg:grid-cols-[0.9fr_1.1fr]">
         <div>
           <p id="aboutLabel" class="mb-3 text-xs font-black uppercase tracking-[0.3em] text-ocean">ABOUT ME</p>
-          <h2 id="aboutTitle" class="max-w-xl text-[clamp(2rem,4vw,3.5rem)] font-black leading-[1.02] tracking-[-0.04em] text-ink">
+          <h2 id="aboutTitle" class="max-w-xl break-words text-[clamp(1.9rem,3.7vw,3.15rem)] font-black leading-[1.05] tracking-[-0.04em] text-ink">
             I bridge infrastructure, automation, and reliability.
           </h2>
         </div>
@@ -252,30 +292,30 @@
       </div>
     </section>
 
-    <section id="skills" class="mx-auto max-w-6xl px-4 py-14">
+    <section id="skills" class="mobile-section mx-auto max-w-6xl px-4 py-14">
       <div class="reveal mb-8">
         <p class="mb-3 text-xs font-black uppercase tracking-[0.3em] text-ocean">SKILLS</p>
-        <h2 class="text-[clamp(2rem,4vw,3.2rem)] font-black tracking-[-0.04em] text-ink">Technical Skills</h2>
+        <h2 class="text-[clamp(2rem,3.8vw,3rem)] font-black tracking-[-0.04em] text-ink">Technical Skills</h2>
       </div>
 
       <div id="skillsGrid" class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4"></div>
     </section>
 
-    <section id="experience" class="mx-auto max-w-6xl px-4 py-14">
+    <section id="experience" class="mobile-section mx-auto max-w-6xl px-4 py-14">
       <div class="reveal mb-8">
         <p class="mb-3 text-xs font-black uppercase tracking-[0.3em] text-ocean">EXPERIENCE</p>
-        <h2 class="text-[clamp(2rem,4vw,3.2rem)] font-black tracking-[-0.04em] text-ink">Professional Experience</h2>
+        <h2 class="text-[clamp(2rem,3.8vw,3rem)] font-black tracking-[-0.04em] text-ink">Professional Experience</h2>
       </div>
 
       <div id="experienceList" class="space-y-5"></div>
     </section>
 
-    <section id="contact" class="mx-auto max-w-6xl px-4 py-14 pb-20">
-      <div class="reveal rounded-[2rem] bg-ink p-6 shadow-soft md:p-8">
+    <section id="contact" class="mobile-section mx-auto max-w-6xl px-4 py-14 pb-20">
+      <div class="reveal mobile-card rounded-[2rem] bg-ink p-6 shadow-soft md:p-8">
         <p class="mb-3 text-xs font-black uppercase tracking-[0.3em] text-cyan-300">CONTACT</p>
-        <h2 class="text-[clamp(2rem,4vw,3.2rem)] font-black tracking-[-0.04em] text-white">Let's Connect</h2>
+        <h2 class="text-[clamp(2rem,3.8vw,3rem)] font-black tracking-[-0.04em] text-white">Let's Connect</h2>
         <p class="mt-3 max-w-2xl text-base leading-7 text-slate-300">Feel free to reach out for DevOps, Cloud Infrastructure, or new opportunities.</p>
-        <div id="contactGrid" class="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"></div>
+        <div id="contactGrid" class="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"></div>
       </div>
     </section>
   </main>
@@ -316,6 +356,28 @@
         .filter(Boolean);
     }
 
+    function animateHeroText() {
+      document.querySelectorAll(".hero-animated-line").forEach((line, lineIndex) => {
+        const text = line.textContent.trim();
+        const words = text.split(" ");
+        line.innerHTML = words.map((word, wordIndex) => {
+          const delay = (lineIndex * 5 + wordIndex) * 65;
+          return `<span class="hero-word" style="animation-delay:${delay}ms">${escapeHtml(word)}&nbsp;</span>`;
+        }).join("");
+      });
+    }
+
+    async function copyContactValue(value, button) {
+      try {
+        await navigator.clipboard.writeText(value);
+        const original = button.textContent;
+        button.textContent = "Copied";
+        setTimeout(() => button.textContent = original, 1200);
+      } catch (error) {
+        alert("Copy failed. Please copy manually: " + value);
+      }
+    }
+
     async function loadPortfolio() {
       const response = await fetch("/api/portfolio");
       const data = await response.json();
@@ -325,6 +387,7 @@
       renderSkills(data.skills || []);
       renderExperiences(data.experiences || []);
       renderContacts(data.contacts || []);
+      animateHeroText();
       activateReveal();
     }
 
@@ -340,7 +403,7 @@
       document.getElementById("aboutBody").textContent = content.about_body || "";
 
       const marqueeItems = splitItems(content.marquee_items || "AWS Cloud,CI/CD,Linux,Nginx,Monitoring,Automation,Security,Route 53");
-      const repeated = [...marqueeItems, ...marqueeItems, ...marqueeItems];
+      const repeated = [...marqueeItems, ...marqueeItems, ...marqueeItems, ...marqueeItems];
       document.getElementById("marqueeTrack").innerHTML = repeated.map(item => `
         <span class="rounded-xl bg-white/70 px-4 py-2 shadow-sm">${escapeHtml(item)}</span>
       `).join("");
@@ -356,7 +419,7 @@
 
       if (photo && photo.image_path) {
         box.innerHTML = `
-          <img src="${escapeHtml(photo.image_path)}" alt="${escapeHtml(photo.alt_text || "Profile photo")}" class="h-full w-full object-cover" />
+          <img src="${escapeHtml(photo.image_path)}" alt="${escapeHtml(photo.alt_text || "Profile photo")}" class="h-full w-full object-contain p-2" />
         `;
       }
     }
@@ -370,7 +433,7 @@
       }
 
       container.innerHTML = skills.map((skill, index) => `
-        <article class="reveal rounded-[1.6rem] bg-white/74 p-5 shadow-card ring-1 ring-white/80 transition duration-300 hover:-translate-y-1 hover:shadow-soft">
+        <article class="reveal mobile-card rounded-[1.6rem] bg-white/74 p-5 shadow-card ring-1 ring-white/80 transition duration-300 hover:-translate-y-1 hover:shadow-soft">
           <div class="mb-5 h-1.5 w-16 rounded-full bg-gradient-to-r ${skillColor(index)}"></div>
           <div class="mb-4 flex items-center justify-between gap-3">
             <span class="rounded-full bg-slate-100 px-3 py-1 text-[11px] font-black text-slate-600">${escapeHtml(skill.category)}</span>
@@ -391,7 +454,7 @@
       }
 
       container.innerHTML = experiences.map(item => `
-        <article class="reveal rounded-[1.7rem] bg-white/74 p-6 shadow-card ring-1 ring-white/80 transition duration-300 hover:-translate-y-1 hover:shadow-soft">
+        <article class="reveal mobile-card rounded-[1.7rem] bg-white/74 p-6 shadow-card ring-1 ring-white/80 transition duration-300 hover:-translate-y-1 hover:shadow-soft">
           <div class="flex flex-col justify-between gap-4 md:flex-row md:items-start">
             <div>
               <p class="text-xs font-black uppercase tracking-[0.18em] text-ocean">${escapeHtml(item.period)}</p>
@@ -415,12 +478,23 @@
         return;
       }
 
-      container.innerHTML = contacts.map(contact => `
-        <a href="${escapeHtml(contact.url || "#")}" target="${contactTarget(contact.url)}" class="rounded-2xl bg-white/8 p-5 ring-1 ring-white/10 transition hover:-translate-y-1 hover:bg-white/12">
-          <p class="text-sm font-black text-cyan-300">${escapeHtml(contact.label || contact.type)}</p>
-          <p class="mt-2 break-words text-sm font-semibold text-white">${escapeHtml(contact.value)}</p>
-        </a>
-      `).join("");
+      container.innerHTML = contacts.map((contact, index) => {
+        const safeValue = escapeHtml(contact.value).replaceAll("'", "\\'");
+        const openButton = contact.url
+          ? `<a href="${escapeHtml(contact.url)}" target="${contactTarget(contact.url)}" class="rounded-xl bg-cyan-300 px-3 py-2 text-xs font-black text-ink hover:bg-cyan-200">Open</a>`
+          : "";
+
+        return `
+          <div class="rounded-2xl bg-white/8 p-5 ring-1 ring-white/10 transition hover:-translate-y-1 hover:bg-white/12">
+            <p class="text-sm font-black text-cyan-300">${escapeHtml(contact.label || contact.type)}</p>
+            <p class="mt-2 break-words text-sm font-semibold text-white">${escapeHtml(contact.value)}</p>
+            <div class="mt-4 flex flex-wrap gap-2">
+              <button onclick="copyContactValue('${safeValue}', this)" class="rounded-xl bg-white/10 px-3 py-2 text-xs font-black text-white ring-1 ring-white/10 hover:bg-white/15">Copy</button>
+              ${openButton}
+            </div>
+          </div>
+        `;
+      }).join("");
     }
 
     function activateReveal() {

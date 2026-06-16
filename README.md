@@ -1,9 +1,18 @@
-# My Portfolio CRUD + Profile Photo
+# My Portfolio CRUD + About + Photo + Animation
 
-Simple modern dynamic portfolio app using Express, SQLite, admin login, and photo upload.
+Dynamic portfolio app using:
 
-Dynamic data:
+- Express
+- SQLite
+- Express Session
+- bcryptjs
+- multer
+- HTML + Tailwind CDN
 
+Dynamic/editable data:
+
+- Hero text
+- About Me
 - Profile photo
 - Skills
 - Experience

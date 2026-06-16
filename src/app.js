@@ -1,153 +1,311 @@
-require('dotenv').config({ path: require('path').join(__dirname, '../.env') });
+require("dotenv").config({ path: require("path").join(__dirname, "../.env") });
 
-const express = require('express');
-const session = require('express-session');
-const path = require('path');
-const fs = require('fs');
-const bcrypt = require('bcryptjs');
-const multer = require('multer');
-const { initDatabase, run, get, all } = require('./db');
+const express = require("express");
+const session = require("express-session");
+const path = require("path");
+const fs = require("fs");
+const bcrypt = require("bcryptjs");
+const multer = require("multer");
+const { initDatabase, run, get, all } = require("./db");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const uploadDir = process.env.UPLOAD_DIR || path.join(__dirname, '../uploads');
+const uploadDir = process.env.UPLOAD_DIR || path.join(__dirname, "../uploads");
+
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
-const upload = multer({
-  storage: multer.diskStorage({
-    destination: (req, file, cb) => cb(null, uploadDir),
-    filename: (req, file, cb) => cb(null, `profile-${Date.now()}${path.extname(file.originalname).toLowerCase()}`)
-  }),
-  fileFilter: (req, file, cb) => {
-    const allowed = ['image/jpeg', 'image/png', 'image/webp'];
-    cb(allowed.includes(file.mimetype) ? null : new Error('Only JPG, PNG, and WEBP images are allowed.'), allowed.includes(file.mimetype));
-  },
-  limits: { fileSize: 2 * 1024 * 1024 }
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, uploadDir),
+  filename: (req, file, cb) => {
+    const extension = path.extname(file.originalname).toLowerCase();
+    cb(null, `profile-${Date.now()}${extension}`);
+  }
 });
+
+function fileFilter(req, file, cb) {
+  const allowed = ["image/jpeg", "image/png", "image/webp"];
+  if (!allowed.includes(file.mimetype)) return cb(new Error("Only JPG, PNG, and WEBP images are allowed."));
+  return cb(null, true);
+}
+
+const upload = multer({ storage, fileFilter, limits: { fileSize: 2 * 1024 * 1024 } });
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(session({
-  name: 'portfolio.sid',
-  secret: process.env.SESSION_SECRET || 'change-this-session-secret',
+  name: "portfolio.sid",
+  secret: process.env.SESSION_SECRET || "change-this-session-secret",
   resave: false,
   saveUninitialized: false,
-  cookie: { httpOnly: true, sameSite: 'lax', secure: false, maxAge: 1000 * 60 * 60 * 8 }
+  cookie: { httpOnly: true, sameSite: "lax", secure: false, maxAge: 1000 * 60 * 60 * 8 }
 }));
-app.use(express.static(path.join(__dirname, '../public')));
-app.use('/uploads', express.static(uploadDir));
+
+app.use(express.static(path.join(__dirname, "../public")));
+app.use("/uploads", express.static(uploadDir));
 
 function requireAuth(req, res, next) {
   if (req.session && req.session.user) return next();
-  return res.status(401).json({ message: 'Unauthorized. Please login first.' });
+  return res.status(401).json({ message: "Unauthorized. Please login first." });
 }
-function parseTags(tags) { return String(tags || '').split(',').map(t => t.trim()).filter(Boolean); }
-function normalizeTags(tags) { return Array.isArray(tags) ? tags.join(',') : String(tags || ''); }
+
+function normalizeTags(tags) {
+  if (Array.isArray(tags)) return tags.join(",");
+  return String(tags || "");
+}
+
+function parseTags(tags) {
+  if (!tags) return [];
+  return String(tags).split(",").map(tag => tag.trim()).filter(Boolean);
+}
+
 function deleteFileIfExists(publicPath) {
-  if (!publicPath || !publicPath.startsWith('/uploads/')) return;
-  const filePath = path.join(uploadDir, path.basename(publicPath));
-  if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+  if (!publicPath || !publicPath.startsWith("/uploads/")) return;
+  const filename = path.basename(publicPath);
+  const fullPath = path.join(uploadDir, filename);
+  if (fs.existsSync(fullPath)) fs.unlinkSync(fullPath);
 }
 
-app.get('/health', (req, res) => res.json({ status: 'ok', service: 'my-portfolio', timestamp: new Date().toISOString() }));
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok", service: "my-portfolio", timestamp: new Date().toISOString() });
+});
 
-app.post('/api/login', async (req, res) => {
+// Auth
+app.post("/api/login", async (req, res) => {
   try {
-    const user = await get('SELECT * FROM users WHERE username = ?', [req.body.username]);
-    if (!user) return res.status(401).json({ message: 'Invalid username or password.' });
-    const valid = await bcrypt.compare(req.body.password || '', user.password_hash);
-    if (!valid) return res.status(401).json({ message: 'Invalid username or password.' });
+    const { username, password } = req.body;
+    const user = await get("SELECT * FROM users WHERE username = ?", [username]);
+    if (!user) return res.status(401).json({ message: "Invalid username or password." });
+
+    const isValid = await bcrypt.compare(password, user.password_hash);
+    if (!isValid) return res.status(401).json({ message: "Invalid username or password." });
+
     req.session.user = { id: user.id, username: user.username };
-    res.json({ message: 'Login successful.', user: req.session.user });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ message: 'Login failed.' });
-  }
-});
-app.post('/api/logout', (req, res) => req.session.destroy(() => { res.clearCookie('portfolio.sid'); res.json({ message: 'Logout successful.' }); }));
-app.get('/api/me', (req, res) => req.session.user ? res.json({ authenticated: true, user: req.session.user }) : res.status(401).json({ authenticated: false }));
-
-app.get('/api/portfolio', async (req, res) => {
-  try {
-    const [photo, skills, experiences, contacts] = await Promise.all([
-      get('SELECT * FROM profile_photo WHERE id = 1'),
-      all('SELECT * FROM skills ORDER BY sort_order ASC, id ASC'),
-      all('SELECT * FROM experiences ORDER BY sort_order ASC, id ASC'),
-      all('SELECT * FROM contacts ORDER BY sort_order ASC, id ASC')
-    ]);
-    res.json({ profilePhoto: photo || null, skills, experiences: experiences.map(e => ({ ...e, tags: parseTags(e.tags) })), contacts });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ message: 'Failed to load portfolio data.' });
+    return res.json({ message: "Login successful.", user: req.session.user });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Login failed." });
   }
 });
 
-app.get('/api/admin/photo', requireAuth, async (req, res) => res.json(await get('SELECT * FROM profile_photo WHERE id = 1') || {}));
-app.post('/api/admin/photo', requireAuth, upload.single('photo'), async (req, res) => {
+app.post("/api/logout", (req, res) => {
+  req.session.destroy(() => {
+    res.clearCookie("portfolio.sid");
+    res.json({ message: "Logout successful." });
+  });
+});
+
+app.get("/api/me", (req, res) => {
+  if (!req.session.user) return res.status(401).json({ authenticated: false });
+  return res.json({ authenticated: true, user: req.session.user });
+});
+
+// Public portfolio data
+app.get("/api/portfolio", async (req, res) => {
   try {
-    const existing = await get('SELECT * FROM profile_photo WHERE id = 1');
+    const content = await get("SELECT * FROM site_content WHERE id = 1");
+    const photo = await get("SELECT * FROM profile_photo WHERE id = 1");
+    const skills = await all("SELECT * FROM skills ORDER BY sort_order ASC, id ASC");
+    const experiences = await all("SELECT * FROM experiences ORDER BY sort_order ASC, id ASC");
+    const contacts = await all("SELECT * FROM contacts ORDER BY sort_order ASC, id ASC");
+
+    return res.json({
+      content,
+      profilePhoto: photo || null,
+      skills,
+      experiences: experiences.map(item => ({ ...item, tags: parseTags(item.tags) })),
+      contacts
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Failed to load portfolio data." });
+  }
+});
+
+// Content CRUD/edit
+app.get("/api/admin/content", requireAuth, async (req, res) => {
+  const content = await get("SELECT * FROM site_content WHERE id = 1");
+  res.json(content || {});
+});
+
+app.put("/api/admin/content", requireAuth, async (req, res) => {
+  const {
+    hero_badge,
+    hero_title_line1,
+    hero_title_highlight,
+    hero_description,
+    about_label,
+    about_title,
+    about_body
+  } = req.body;
+
+  await run(
+    `INSERT INTO site_content (
+      id, hero_badge, hero_title_line1, hero_title_highlight, hero_description,
+      about_label, about_title, about_body, updated_at
+    ) VALUES (1, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+    ON CONFLICT(id) DO UPDATE SET
+      hero_badge = excluded.hero_badge,
+      hero_title_line1 = excluded.hero_title_line1,
+      hero_title_highlight = excluded.hero_title_highlight,
+      hero_description = excluded.hero_description,
+      about_label = excluded.about_label,
+      about_title = excluded.about_title,
+      about_body = excluded.about_body,
+      updated_at = CURRENT_TIMESTAMP`,
+    [hero_badge, hero_title_line1, hero_title_highlight, hero_description, about_label, about_title, about_body]
+  );
+
+  const content = await get("SELECT * FROM site_content WHERE id = 1");
+  res.json({ message: "Content updated.", content });
+});
+
+// Photo CRUD
+app.get("/api/admin/photo", requireAuth, async (req, res) => {
+  const photo = await get("SELECT * FROM profile_photo WHERE id = 1");
+  res.json(photo || {});
+});
+
+app.post("/api/admin/photo", requireAuth, upload.single("photo"), async (req, res) => {
+  try {
+    const existing = await get("SELECT * FROM profile_photo WHERE id = 1");
     let imagePath = existing ? existing.image_path : null;
     let originalName = existing ? existing.original_name : null;
+
     if (req.file) {
       if (existing && existing.image_path) deleteFileIfExists(existing.image_path);
       imagePath = `/uploads/${req.file.filename}`;
       originalName = req.file.originalname;
     }
-    await run(`INSERT INTO profile_photo (id, image_path, original_name, alt_text, headline, updated_at)
-      VALUES (1, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-      ON CONFLICT(id) DO UPDATE SET image_path=excluded.image_path, original_name=excluded.original_name,
-      alt_text=excluded.alt_text, headline=excluded.headline, updated_at=CURRENT_TIMESTAMP`,
-      [imagePath, originalName, req.body.alt_text || 'Jhon Reimon Siagian', req.body.headline || 'DevOps Engineer']);
-    res.json({ message: 'Profile photo updated.', photo: await get('SELECT * FROM profile_photo WHERE id = 1') });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ message: 'Failed to update profile photo.' });
+
+    await run(
+      `INSERT INTO profile_photo (id, image_path, original_name, alt_text, headline, updated_at)
+       VALUES (1, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+       ON CONFLICT(id) DO UPDATE SET
+        image_path = excluded.image_path,
+        original_name = excluded.original_name,
+        alt_text = excluded.alt_text,
+        headline = excluded.headline,
+        updated_at = CURRENT_TIMESTAMP`,
+      [imagePath, originalName, req.body.alt_text || "Jhon Reimon Siagian", req.body.headline || "DevOps Engineer"]
+    );
+
+    const photo = await get("SELECT * FROM profile_photo WHERE id = 1");
+    res.json({ message: "Profile photo updated.", photo });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Failed to update profile photo." });
   }
 });
-app.delete('/api/admin/photo', requireAuth, async (req, res) => {
-  const existing = await get('SELECT * FROM profile_photo WHERE id = 1');
+
+app.delete("/api/admin/photo", requireAuth, async (req, res) => {
+  const existing = await get("SELECT * FROM profile_photo WHERE id = 1");
   if (existing && existing.image_path) deleteFileIfExists(existing.image_path);
-  await run('UPDATE profile_photo SET image_path = NULL, original_name = NULL, updated_at = CURRENT_TIMESTAMP WHERE id = 1');
-  res.json({ message: 'Profile photo deleted.' });
+  await run("UPDATE profile_photo SET image_path = NULL, original_name = NULL, updated_at = CURRENT_TIMESTAMP WHERE id = 1");
+  res.json({ message: "Profile photo deleted." });
 });
 
-app.get('/api/admin/skills', requireAuth, async (req, res) => res.json(await all('SELECT * FROM skills ORDER BY sort_order ASC, id ASC')));
-app.post('/api/admin/skills', requireAuth, async (req, res) => {
-  const r = await run('INSERT INTO skills (name, category, level, description, sort_order) VALUES (?, ?, ?, ?, ?)', [req.body.name, req.body.category, req.body.level, req.body.description, Number(req.body.sort_order || 0)]);
-  res.status(201).json({ id: r.id, message: 'Skill created.' });
+// Skills CRUD
+app.get("/api/admin/skills", requireAuth, async (req, res) => {
+  res.json(await all("SELECT * FROM skills ORDER BY sort_order ASC, id ASC"));
 });
-app.put('/api/admin/skills/:id', requireAuth, async (req, res) => {
-  await run('UPDATE skills SET name=?, category=?, level=?, description=?, sort_order=?, updated_at=CURRENT_TIMESTAMP WHERE id=?', [req.body.name, req.body.category, req.body.level, req.body.description, Number(req.body.sort_order || 0), req.params.id]);
-  res.json({ message: 'Skill updated.' });
-});
-app.delete('/api/admin/skills/:id', requireAuth, async (req, res) => { await run('DELETE FROM skills WHERE id=?', [req.params.id]); res.json({ message: 'Skill deleted.' }); });
 
-app.get('/api/admin/experiences', requireAuth, async (req, res) => res.json((await all('SELECT * FROM experiences ORDER BY sort_order ASC, id ASC')).map(r => ({ ...r, tags: parseTags(r.tags) }))));
-app.post('/api/admin/experiences', requireAuth, async (req, res) => {
-  const r = await run('INSERT INTO experiences (title, company, period, description, tags, sort_order) VALUES (?, ?, ?, ?, ?, ?)', [req.body.title, req.body.company, req.body.period, req.body.description, normalizeTags(req.body.tags), Number(req.body.sort_order || 0)]);
-  res.status(201).json({ id: r.id, message: 'Experience created.' });
+app.post("/api/admin/skills", requireAuth, async (req, res) => {
+  const { name, category, level, description, sort_order } = req.body;
+  const result = await run(
+    "INSERT INTO skills (name, category, level, description, sort_order) VALUES (?, ?, ?, ?, ?)",
+    [name, category, level, description, Number(sort_order || 0)]
+  );
+  res.status(201).json({ id: result.id, message: "Skill created." });
 });
-app.put('/api/admin/experiences/:id', requireAuth, async (req, res) => {
-  await run('UPDATE experiences SET title=?, company=?, period=?, description=?, tags=?, sort_order=?, updated_at=CURRENT_TIMESTAMP WHERE id=?', [req.body.title, req.body.company, req.body.period, req.body.description, normalizeTags(req.body.tags), Number(req.body.sort_order || 0), req.params.id]);
-  res.json({ message: 'Experience updated.' });
-});
-app.delete('/api/admin/experiences/:id', requireAuth, async (req, res) => { await run('DELETE FROM experiences WHERE id=?', [req.params.id]); res.json({ message: 'Experience deleted.' }); });
 
-app.get('/api/admin/contacts', requireAuth, async (req, res) => res.json(await all('SELECT * FROM contacts ORDER BY sort_order ASC, id ASC')));
-app.post('/api/admin/contacts', requireAuth, async (req, res) => {
-  const r = await run('INSERT INTO contacts (type, label, value, url, sort_order) VALUES (?, ?, ?, ?, ?)', [req.body.type, req.body.label, req.body.value, req.body.url, Number(req.body.sort_order || 0)]);
-  res.status(201).json({ id: r.id, message: 'Contact created.' });
+app.put("/api/admin/skills/:id", requireAuth, async (req, res) => {
+  const { name, category, level, description, sort_order } = req.body;
+  await run(
+    "UPDATE skills SET name = ?, category = ?, level = ?, description = ?, sort_order = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+    [name, category, level, description, Number(sort_order || 0), req.params.id]
+  );
+  res.json({ message: "Skill updated." });
 });
-app.put('/api/admin/contacts/:id', requireAuth, async (req, res) => {
-  await run('UPDATE contacts SET type=?, label=?, value=?, url=?, sort_order=?, updated_at=CURRENT_TIMESTAMP WHERE id=?', [req.body.type, req.body.label, req.body.value, req.body.url, Number(req.body.sort_order || 0), req.params.id]);
-  res.json({ message: 'Contact updated.' });
+
+app.delete("/api/admin/skills/:id", requireAuth, async (req, res) => {
+  await run("DELETE FROM skills WHERE id = ?", [req.params.id]);
+  res.json({ message: "Skill deleted." });
 });
-app.delete('/api/admin/contacts/:id', requireAuth, async (req, res) => { await run('DELETE FROM contacts WHERE id=?', [req.params.id]); res.json({ message: 'Contact deleted.' }); });
 
-app.get('*', (req, res) => res.sendFile(path.join(__dirname, '../public/index.html')));
-app.use((error, req, res, next) => res.status(400).json({ message: error.message || 'Upload failed.' }));
+// Experiences CRUD
+app.get("/api/admin/experiences", requireAuth, async (req, res) => {
+  const rows = await all("SELECT * FROM experiences ORDER BY sort_order ASC, id ASC");
+  res.json(rows.map(row => ({ ...row, tags: parseTags(row.tags) })));
+});
 
-initDatabase().then(() => app.listen(PORT, '127.0.0.1', () => {
-  console.log(`Portfolio app running on http://127.0.0.1:${PORT}`);
-  console.log(`Uploads directory: ${uploadDir}`);
-})).catch(error => { console.error('Failed to initialize database:', error); process.exit(1); });
+app.post("/api/admin/experiences", requireAuth, async (req, res) => {
+  const { title, company, period, description, tags, sort_order } = req.body;
+  const result = await run(
+    "INSERT INTO experiences (title, company, period, description, tags, sort_order) VALUES (?, ?, ?, ?, ?, ?)",
+    [title, company, period, description, normalizeTags(tags), Number(sort_order || 0)]
+  );
+  res.status(201).json({ id: result.id, message: "Experience created." });
+});
+
+app.put("/api/admin/experiences/:id", requireAuth, async (req, res) => {
+  const { title, company, period, description, tags, sort_order } = req.body;
+  await run(
+    "UPDATE experiences SET title = ?, company = ?, period = ?, description = ?, tags = ?, sort_order = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+    [title, company, period, description, normalizeTags(tags), Number(sort_order || 0), req.params.id]
+  );
+  res.json({ message: "Experience updated." });
+});
+
+app.delete("/api/admin/experiences/:id", requireAuth, async (req, res) => {
+  await run("DELETE FROM experiences WHERE id = ?", [req.params.id]);
+  res.json({ message: "Experience deleted." });
+});
+
+// Contacts CRUD
+app.get("/api/admin/contacts", requireAuth, async (req, res) => {
+  res.json(await all("SELECT * FROM contacts ORDER BY sort_order ASC, id ASC"));
+});
+
+app.post("/api/admin/contacts", requireAuth, async (req, res) => {
+  const { type, label, value, url, sort_order } = req.body;
+  const result = await run(
+    "INSERT INTO contacts (type, label, value, url, sort_order) VALUES (?, ?, ?, ?, ?)",
+    [type, label, value, url, Number(sort_order || 0)]
+  );
+  res.status(201).json({ id: result.id, message: "Contact created." });
+});
+
+app.put("/api/admin/contacts/:id", requireAuth, async (req, res) => {
+  const { type, label, value, url, sort_order } = req.body;
+  await run(
+    "UPDATE contacts SET type = ?, label = ?, value = ?, url = ?, sort_order = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+    [type, label, value, url, Number(sort_order || 0), req.params.id]
+  );
+  res.json({ message: "Contact updated." });
+});
+
+app.delete("/api/admin/contacts/:id", requireAuth, async (req, res) => {
+  await run("DELETE FROM contacts WHERE id = ?", [req.params.id]);
+  res.json({ message: "Contact deleted." });
+});
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../public/index.html"));
+});
+
+app.use((error, req, res, next) => {
+  if (error) return res.status(400).json({ message: error.message || "Upload failed." });
+  next();
+});
+
+initDatabase()
+  .then(() => {
+    app.listen(PORT, "127.0.0.1", () => {
+      console.log(`Portfolio app running on http://127.0.0.1:${PORT}`);
+      console.log(`Uploads directory: ${uploadDir}`);
+    });
+  })
+  .catch(error => {
+    console.error("Failed to initialize database:", error);
+    process.exit(1);
+  });

@@ -1,30 +1,36 @@
-# My Portfolio
+# My Portfolio CRUD
 
-Simple DevOps portfolio website using:
+Dynamic data:
 
-- HTML
-- Tailwind CSS CDN
-- Node.js Express
-- PM2 for production process
+- Skills
+- Experience
+- Contact
 
-## Run locally
+Stack:
+
+- Express
+- SQLite
+- Express session
+- bcryptjs
+- HTML + Tailwind CDN
+
+Run:
 
 ```bash
+cp .env.example .env
 npm install
 npm start
 ```
 
-Open:
+Admin:
 
 ```text
-http://127.0.0.1:3000
+/admin.html
 ```
 
-## Deploy on EC2
+Default login follows `.env`:
 
-```bash
-cd /var/www/my-portfolio
-git pull origin main
-npm install --omit=dev
-pm2 restart my-portfolio
+```text
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=ChangeMe123!
 ```

@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Portfolio Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+    body {
+      font-family: Inter, system-ui, sans-serif;
+      background:
+        radial-gradient(circle at 10% 10%, rgba(6, 182, 212, 0.13), transparent 28rem),
+        radial-gradient(circle at 90% 15%, rgba(124, 58, 237, 0.10), transparent 26rem),
+        linear-gradient(135deg, #eef8ff 0%, #f8fbff 48%, #f6f2ff 100%);
+    }
+
+    .input {
+      width: 100%;
+      border-radius: 1rem;
+      border: 1px solid rgb(203 213 225);
+      background: rgba(255, 255, 255, 0.92);
+      padding: 0.78rem 1rem;
+      color: rgb(15 23 42);
+      outline: none;
+      font-size: 0.92rem;
+    }
+
+    .input:focus {
+      border-color: rgb(37 99 235);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+  </style>
+</head>
+
+<body class="min-h-screen text-slate-800">
+  <header class="px-4 py-4">
+    <div class="mx-auto flex max-w-7xl items-center justify-between rounded-3xl bg-white/78 px-5 py-4 shadow-lg ring-1 ring-white">
+      <div>
+        <h1 class="text-xl font-black text-slate-950">Portfolio Admin</h1>
+        <p class="text-sm font-medium text-slate-500">Manage Hero, About, Photo, Skills, Experience, and Contact</p>
+      </div>
+
+      <div class="flex gap-3">
+        <a href="/" class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700">View Site</a>
+        <button id="logoutBtn" class="hidden rounded-xl bg-red-500 px-4 py-2 text-sm font-bold text-white" onclick="logout()">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-7xl px-4 py-8">
+    <section id="loginBox" class="mx-auto max-w-md rounded-3xl bg-white/82 p-6 shadow-lg ring-1 ring-white">
+      <h2 class="text-2xl font-black text-slate-950">Login</h2>
+      <p class="mt-2 text-sm text-slate-500">Masuk dulu untuk mengubah data portfolio.</p>
+
+      <form id="loginForm" class="mt-6 grid gap-4">
+        <div>
+          <label class="mb-2 block text-sm font-bold text-slate-700">Username</label>
+          <input id="loginUsername" class="input" placeholder="admin" required />
+        </div>
+
+        <div>
+          <label class="mb-2 block text-sm font-bold text-slate-700">Password</label>
+          <input id="loginPassword" class="input" type="password" placeholder="Password" required />
+        </div>
+
+        <button class="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-bold text-white" type="submit">
+          Login
+        </button>
+
+        <p id="loginMessage" class="text-sm font-semibold text-red-500"></p>
+      </form>
+    </section>
+
+    <section id="adminBox" class="hidden">
+      <div class="mb-6 flex flex-wrap gap-3">
+        <button class="tab-btn rounded-2xl bg-slate-950 px-5 py-3 text-sm font-bold text-white" data-tab="contentTab">Hero & About</button>
+        <button class="tab-btn rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-700" data-tab="photoTab">Photo</button>
+        <button class="tab-btn rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-700" data-tab="skillsTab">Skills</button>
+        <button class="tab-btn rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-700" data-tab="experiencesTab">Experience</button>
+        <button class="tab-btn rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-700" data-tab="contactsTab">Contact</button>
+      </div>
+
+      <div id="contentTab" class="tab-content">
+        <form id="contentForm" class="rounded-3xl bg-white/82 p-6 shadow-lg ring-1 ring-white">
+          <h2 class="mb-5 text-xl font-black text-slate-950">Hero & About Content</h2>
+
+          <div class="grid gap-4 lg:grid-cols-2">
+            <input id="heroBadgeInput" class="input" placeholder="Hero Badge" />
+            <input id="heroTitleLine1Input" class="input" placeholder="Hero Title Line 1" />
+            <input id="heroTitleHighlightInput" class="input" placeholder="Hero Highlight" />
+            <input id="marqueeItemsInput" class="input" placeholder="AWS Cloud,CI/CD,Linux" />
+            <textarea id="heroDescriptionInput" class="input min-h-28 lg:col-span-2" placeholder="Hero Description"></textarea>
+            <input id="heroPrimaryButtonInput" class="input" placeholder="Primary Button Text" />
+            <input id="heroSecondaryButtonInput" class="input" placeholder="Secondary Button Text" />
+            <input id="aboutLabelInput" class="input" placeholder="About Label" />
+            <input id="aboutTitleInput" class="input" placeholder="About Title" />
+            <textarea id="aboutBodyInput" class="input min-h-32 lg:col-span-2" placeholder="About Body"></textarea>
+          </div>
+
+          <button class="mt-5 rounded-2xl bg-slate-950 px-5 py-3 text-sm font-bold text-white">Save Content</button>
+          <p id="contentMessage" class="mt-3 text-sm font-semibold text-blue-600"></p>
+        </form>
+      </div>
+
+      <div id="photoTab" class="tab-content hidden">
+        <div class="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
+          <form id="photoForm" class="rounded-3xl bg-white/82 p-6 shadow-lg ring-1 ring-white">
+            <h2 class="mb-5 text-xl font-black text-slate-950">Profile Photo</h2>
+            <div class="grid gap-4">
+              <input id="profilePhotoInput" class="input" type="file" accept="image/png,image/jpeg,image/webp" />
+              <p class="text-xs text-slate-500">Allowed: JPG, PNG, WEBP. Max 2 MB.</p>
+              <input id="photoAltText" class="input" placeholder="Alt Text" />
+              <input id="photoHeadlineInput" class="input" placeholder="Headline" />
+              <div class="flex flex-wrap gap-3">
+                <button class="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-bold text-white">Save Photo</button>
+                <button type="button" onclick="deletePhoto()" class="rounded-2xl bg-red-500 px-5 py-3 text-sm font-bold text-white">Delete Photo</button>
+              </div>
+              <p id="photoMessage" class="text-sm font-semibold text-blue-600"></p>
+            </div>
+          </form>
+
+          <div class="rounded-3xl bg-white/82 p-6 shadow-lg ring-1 ring-white">
+            <h2 class="mb-5 text-xl font-black text-slate-950">Current Photo</h2>
+            <div id="photoPreview" class="flex min-h-80 items-center justify-center rounded-3xl bg-slate-100 p-4 text-center text-slate-500">
+              No photo uploaded.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="skillsTab" class="tab-content hidden">
+        <div class="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+          <form id="skillForm" class="rounded-3xl bg-white/82 p-6 shadow-lg ring-1 ring-white">
+            <input type="hidden" id="skillId" />
+            <h2 class="mb-5 text-xl font-black text-slate-950">Add / Edit Skill</h2>
+            <div class="grid gap-4">
+              <input id="skillName" class="input" placeholder="Skill name" required />
+              <input id="skillCategory" class="input" placeholder="Category" />
+              <select id="skillLevel" class="input">
+                <option value="Beginner">Beginner</option>
+                <option value="Intermediate">Intermediate</option>
+                <option value="Strong">Strong</option>
+                <option value="Advanced">Advanced</option>
+              </select>
+              <textarea id="skillDescription" class="input min-h-28" placeholder="Description"></textarea>
+              <input id="skillOrder" class="input" type="number" placeholder="Sort order" value="0" />
+              <div class="flex gap-3">
+                <button class="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-bold text-white">Save</button>
+                <button type="button" onclick="clearSkillForm()" class="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-700">Clear</button>
+              </div>
+            </div>
+          </form>
+          <div class="rounded-3xl bg-white/82 p-6 shadow-lg ring-1 ring-white">
+            <h2 class="mb-5 text-xl font-black text-slate-950">Skill List</h2>
+            <div id="skillList" class="space-y-3"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="experiencesTab" class="tab-content hidden">
+        <div class="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+          <form id="experienceForm" class="rounded-3xl bg-white/82 p-6 shadow-lg ring-1 ring-white">
+            <input type="hidden" id="experienceId" />
+            <h2 class="mb-5 text-xl font-black text-slate-950">Add / Edit Experience</h2>
+            <div class="grid gap-4">
+              <input id="experienceTitle" class="input" placeholder="Title / Role" required />
+              <input id="experienceCompany" class="input" placeholder="Company / Context" />
+              <input id="experiencePeriod" class="input" placeholder="Period" />
+              <textarea id="experienceDescription" class="input min-h-28" placeholder="Description"></textarea>
+              <input id="experienceTags" class="input" placeholder="Tags, separated by comma" />
+              <input id="experienceOrder" class="input" type="number" placeholder="Sort order" value="0" />
+              <div class="flex gap-3">
+                <button class="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-bold text-white">Save</button>
+                <button type="button" onclick="clearExperienceForm()" class="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-700">Clear</button>
+              </div>
+            </div>
+          </form>
+          <div class="rounded-3xl bg-white/82 p-6 shadow-lg ring-1 ring-white">
+            <h2 class="mb-5 text-xl font-black text-slate-950">Experience List</h2>
+            <div id="experienceList" class="space-y-3"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="contactsTab" class="tab-content hidden">
+        <div class="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+          <form id="contactForm" class="rounded-3xl bg-white/82 p-6 shadow-lg ring-1 ring-white">
+            <input type="hidden" id="contactId" />
+            <h2 class="mb-5 text-xl font-black text-slate-950">Add / Edit Contact</h2>
+            <div class="grid gap-4">
+              <select id="contactType" class="input">
+                <option value="Email">Email</option>
+                <option value="Phone">Phone</option>
+                <option value="LinkedIn">LinkedIn</option>
+                <option value="Instagram">Instagram</option>
+                <option value="GitHub">GitHub</option>
+                <option value="Website">Website</option>
+              </select>
+              <input id="contactLabel" class="input" placeholder="Label" />
+              <input id="contactValue" class="input" placeholder="Value" required />
+              <input id="contactUrl" class="input" placeholder="URL, example mailto: or https:// or tel:" />
+              <input id="contactOrder" class="input" type="number" placeholder="Sort order" value="0" />
+              <div class="flex gap-3">
+                <button class="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-bold text-white">Save</button>
+                <button type="button" onclick="clearContactForm()" class="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-700">Clear</button>
+              </div>
+            </div>
+          </form>
+          <div class="rounded-3xl bg-white/82 p-6 shadow-lg ring-1 ring-white">
+            <h2 class="mb-5 text-xl font-black text-slate-950">Contact List</h2>
+            <div id="contactList" class="space-y-3"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    function escapeHtml(value) {
+      return String(value || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    async function api(url, options = {}) {
+      const isFormData = options.body instanceof FormData;
+      const response = await fetch(url, {
+        headers: isFormData ? options.headers : {
+          "Content-Type": "application/json",
+          ...(options.headers || {})
+        },
+        ...options
+      });
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ message: "Request failed" }));
+        throw new Error(error.message || "Request failed");
+      }
+
+      return response.json();
+    }
+
+    async function checkAuth() {
+      try {
+        await api("/api/me");
+        showAdmin();
+      } catch {
+        showLogin();
+      }
+    }
+
+    function showAdmin() {
+      document.getElementById("loginBox").classList.add("hidden");
+      document.getElementById("adminBox").classList.remove("hidden");
+      document.getElementById("logoutBtn").classList.remove("hidden");
+      loadAll();
+    }
+
+    function showLogin() {
+      document.getElementById("loginBox").classList.remove("hidden");
+      document.getElementById("adminBox").classList.add("hidden");
+      document.getElementById("logoutBtn").classList.add("hidden");
+    }
+
+    document.getElementById("loginForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      try {
+        await api("/api/login", {
+          method: "POST",
+          body: JSON.stringify({
+            username: document.getElementById("loginUsername").value,
+            password: document.getElementById("loginPassword").value
+          })
+        });
+        document.getElementById("loginMessage").textContent = "";
+        showAdmin();
+      } catch (error) {
+        document.getElementById("loginMessage").textContent = error.message;
+      }
+    });
+
+    async function logout() {
+      await api("/api/logout", { method: "POST" });
+      showLogin();
+    }
+
+    const tabButtons = document.querySelectorAll(".tab-btn");
+    tabButtons.forEach((button) => {
+      button.addEventListener("click", () => showTab(button.dataset.tab));
+    });
+
+    function showTab(tabId) {
+      document.querySelectorAll(".tab-content").forEach(tab => tab.classList.add("hidden"));
+      document.getElementById(tabId).classList.remove("hidden");
+      tabButtons.forEach(button => {
+        button.className = button.dataset.tab === tabId
+          ? "tab-btn rounded-2xl bg-slate-950 px-5 py-3 text-sm font-bold text-white"
+          : "tab-btn rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-700";
+      });
+    }
+
+    async function loadAll() {
+      await Promise.all([
+        loadContent(),
+        loadPhoto(),
+        loadSkills(),
+        loadExperiences(),
+        loadContacts()
+      ]);
+    }
+
+    function itemCard({ title, subtitle, onEdit, onDelete }) {
+      return `
+        <div class="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
+          <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+            <div>
+              <p class="font-black text-slate-950">${escapeHtml(title)}</p>
+              <p class="mt-1 text-xs font-medium text-slate-500">${escapeHtml(subtitle)}</p>
+            </div>
+            <div class="flex gap-2">
+              <button onclick="${onEdit}" class="rounded-xl border border-blue-200 bg-blue-50 px-4 py-2 text-xs font-black text-blue-700">Edit</button>
+              <button onclick="${onDelete}" class="rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-xs font-black text-red-600">Delete</button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    async function loadContent() {
+      const content = await api("/api/admin/content");
+      document.getElementById("heroBadgeInput").value = content.hero_badge || "";
+      document.getElementById("heroTitleLine1Input").value = content.hero_title_line1 || "";
+      document.getElementById("heroTitleHighlightInput").value = content.hero_title_highlight || "";
+      document.getElementById("heroDescriptionInput").value = content.hero_description || "";
+      document.getElementById("heroPrimaryButtonInput").value = content.hero_primary_button || "";
+      document.getElementById("heroSecondaryButtonInput").value = content.hero_secondary_button || "";
+      document.getElementById("aboutLabelInput").value = content.about_label || "";
+      document.getElementById("aboutTitleInput").value = content.about_title || "";
+      document.getElementById("aboutBodyInput").value = content.about_body || "";
+      document.getElementById("marqueeItemsInput").value = content.marquee_items || "";
+    }
+
+    document.getElementById("contentForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await api("/api/admin/content", {
+        method: "PUT",
+        body: JSON.stringify({
+          hero_badge: document.getElementById("heroBadgeInput").value,
+          hero_title_line1: document.getElementById("heroTitleLine1Input").value,
+          hero_title_highlight: document.getElementById("heroTitleHighlightInput").value,
+          hero_description: document.getElementById("heroDescriptionInput").value,
+          hero_primary_button: document.getElementById("heroPrimaryButtonInput").value,
+          hero_secondary_button: document.getElementById("heroSecondaryButtonInput").value,
+          about_label: document.getElementById("aboutLabelInput").value,
+          about_title: document.getElementById("aboutTitleInput").value,
+          about_body: document.getElementById("aboutBodyInput").value,
+          marquee_items: document.getElementById("marqueeItemsInput").value
+        })
+      });
+      document.getElementById("contentMessage").textContent = "Content saved successfully.";
+    });
+
+    async function loadPhoto() {
+      const currentPhoto = await api("/api/admin/photo");
+      document.getElementById("photoAltText").value = currentPhoto.alt_text || "";
+      document.getElementById("photoHeadlineInput").value = currentPhoto.headline || "";
+      const preview = document.getElementById("photoPreview");
+      if (currentPhoto.image_path) {
+        preview.innerHTML = `<img src="${escapeHtml(currentPhoto.image_path)}?v=${Date.now()}" class="max-h-[420px] rounded-3xl object-contain shadow-lg" alt="${escapeHtml(currentPhoto.alt_text || "Profile photo")}" />`;
+      } else {
+        preview.innerHTML = "No photo uploaded.";
+      }
+    }
+
+    document.getElementById("photoForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const formData = new FormData();
+      const file = document.getElementById("profilePhotoInput").files[0];
+      if (file) formData.append("photo", file);
+      formData.append("alt_text", document.getElementById("photoAltText").value);
+      formData.append("headline", document.getElementById("photoHeadlineInput").value);
+      try {
+        await api("/api/admin/photo", { method: "POST", body: formData });
+        document.getElementById("profilePhotoInput").value = "";
+        document.getElementById("photoMessage").textContent = "Photo saved successfully.";
+        loadPhoto();
+      } catch (error) {
+        document.getElementById("photoMessage").textContent = error.message;
+      }
+    });
+
+    async function deletePhoto() {
+      if (!confirm("Delete profile photo?")) return;
+      await api("/api/admin/photo", { method: "DELETE" });
+      document.getElementById("photoMessage").textContent = "Photo deleted.";
+      loadPhoto();
+    }
+
+    let skills = [];
+    async function loadSkills() {
+      skills = await api("/api/admin/skills");
+      document.getElementById("skillList").innerHTML = skills.map(item => itemCard({
+        title: item.name,
+        subtitle: `${item.category || "-"} • ${item.level || "-"} • order ${item.sort_order}`,
+        onEdit: `editSkill(${item.id})`,
+        onDelete: `deleteSkill(${item.id})`
+      })).join("");
+    }
+
+    document.getElementById("skillForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const id = document.getElementById("skillId").value;
+      const payload = {
+        name: document.getElementById("skillName").value,
+        category: document.getElementById("skillCategory").value,
+        level: document.getElementById("skillLevel").value,
+        description: document.getElementById("skillDescription").value,
+        sort_order: document.getElementById("skillOrder").value
+      };
+      await api(id ? `/api/admin/skills/${id}` : "/api/admin/skills", { method: id ? "PUT" : "POST", body: JSON.stringify(payload) });
+      clearSkillForm();
+      loadSkills();
+    });
+
+    function editSkill(id) {
+      const item = skills.find(skill => skill.id === id);
+      if (!item) return;
+      document.getElementById("skillId").value = item.id;
+      document.getElementById("skillName").value = item.name || "";
+      document.getElementById("skillCategory").value = item.category || "";
+      document.getElementById("skillLevel").value = item.level || "Strong";
+      document.getElementById("skillDescription").value = item.description || "";
+      document.getElementById("skillOrder").value = item.sort_order || 0;
+    }
+
+    async function deleteSkill(id) {
+      if (!confirm("Delete this skill?")) return;
+      await api(`/api/admin/skills/${id}`, { method: "DELETE" });
+      loadSkills();
+    }
+
+    function clearSkillForm() {
+      document.getElementById("skillForm").reset();
+      document.getElementById("skillId").value = "";
+    }
+
+    let experiences = [];
+    async function loadExperiences() {
+      experiences = await api("/api/admin/experiences");
+      document.getElementById("experienceList").innerHTML = experiences.map(item => itemCard({
+        title: item.title,
+        subtitle: `${item.company || "-"} • ${item.period || "-"} • order ${item.sort_order}`,
+        onEdit: `editExperience(${item.id})`,
+        onDelete: `deleteExperience(${item.id})`
+      })).join("");
+    }
+
+    document.getElementById("experienceForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const id = document.getElementById("experienceId").value;
+      const payload = {
+        title: document.getElementById("experienceTitle").value,
+        company: document.getElementById("experienceCompany").value,
+        period: document.getElementById("experiencePeriod").value,
+        description: document.getElementById("experienceDescription").value,
+        tags: document.getElementById("experienceTags").value,
+        sort_order: document.getElementById("experienceOrder").value
+      };
+      await api(id ? `/api/admin/experiences/${id}` : "/api/admin/experiences", { method: id ? "PUT" : "POST", body: JSON.stringify(payload) });
+      clearExperienceForm();
+      loadExperiences();
+    });
+
+    function editExperience(id) {
+      const item = experiences.find(exp => exp.id === id);
+      if (!item) return;
+      document.getElementById("experienceId").value = item.id;
+      document.getElementById("experienceTitle").value = item.title || "";
+      document.getElementById("experienceCompany").value = item.company || "";
+      document.getElementById("experiencePeriod").value = item.period || "";
+      document.getElementById("experienceDescription").value = item.description || "";
+      document.getElementById("experienceTags").value = Array.isArray(item.tags) ? item.tags.join(", ") : item.tags || "";
+      document.getElementById("experienceOrder").value = item.sort_order || 0;
+    }
+
+    async function deleteExperience(id) {
+      if (!confirm("Delete this experience?")) return;
+      await api(`/api/admin/experiences/${id}`, { method: "DELETE" });
+      loadExperiences();
+    }
+
+    function clearExperienceForm() {
+      document.getElementById("experienceForm").reset();
+      document.getElementById("experienceId").value = "";
+    }
+
+    let contacts = [];
+    async function loadContacts() {
+      contacts = await api("/api/admin/contacts");
+      document.getElementById("contactList").innerHTML = contacts.map(item => itemCard({
+        title: `${item.type} - ${item.label || "-"}`,
+        subtitle: `${item.value || "-"} • order ${item.sort_order}`,
+        onEdit: `editContact(${item.id})`,
+        onDelete: `deleteContact(${item.id})`
+      })).join("");
+    }
+
+    document.getElementById("contactForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const id = document.getElementById("contactId").value;
+      const payload = {
+        type: document.getElementById("contactType").value,
+        label: document.getElementById("contactLabel").value,
+        value: document.getElementById("contactValue").value,
+        url: document.getElementById("contactUrl").value,
+        sort_order: document.getElementById("contactOrder").value
+      };
+      await api(id ? `/api/admin/contacts/${id}` : "/api/admin/contacts", { method: id ? "PUT" : "POST", body: JSON.stringify(payload) });
+      clearContactForm();
+      loadContacts();
+    });
+
+    function editContact(id) {
+      const item = contacts.find(contact => contact.id === id);
+      if (!item) return;
+      document.getElementById("contactId").value = item.id;
+      document.getElementById("contactType").value = item.type || "Email";
+      document.getElementById("contactLabel").value = item.label || "";
+      document.getElementById("contactValue").value = item.value || "";
+      document.getElementById("contactUrl").value = item.url || "";
+      document.getElementById("contactOrder").value = item.sort_order || 0;
+    }
+
+    async function deleteContact(id) {
+      if (!confirm("Delete this contact?")) return;
+      await api(`/api/admin/contacts/${id}`, { method: "DELETE" });
+      loadContacts();
+    }
+
+    function clearContactForm() {
+      document.getElementById("contactForm").reset();
+      document.getElementById("contactId").value = "";
+    }
+
+    checkAuth();
+  </script>
+</body>
+</html>

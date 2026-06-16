@@ -39,6 +39,14 @@ function all(sql, params = []) {
   });
 }
 
+async function ensureColumn(tableName, columnName, columnDefinition) {
+  const columns = await all(`PRAGMA table_info(${tableName})`);
+  const exists = columns.some((column) => column.name === columnName);
+  if (!exists) {
+    await run(`ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${columnDefinition}`);
+  }
+}
+
 async function initDatabase() {
   await run(`
     CREATE TABLE IF NOT EXISTS users (
@@ -111,6 +119,7 @@ async function initDatabase() {
   await seedAdminUser();
   await seedSiteContent();
   await seedDefaultPortfolioData();
+  await ensurePhoneContact();
   await seedProfilePhotoRow();
 }
 
@@ -166,70 +175,26 @@ async function seedDefaultPortfolioData() {
   const skillCount = await get("SELECT COUNT(*) AS count FROM skills");
   if (skillCount.count === 0) {
     const skills = [
-      [
-        "AWS Cloud Infrastructure",
-        "Cloud",
-        "Advanced",
-        "Managing AWS services such as EC2, VPC, IAM, S3, Route 53, ALB/NLB, CloudWatch, Lambda, and EventBridge.",
-        1
-      ],
-      [
-        "CI/CD & Deployment Automation",
-        "DevOps",
-        "Advanced",
-        "Building practical deployment workflows using Git, GitHub, Nginx, PM2, and automation scripts.",
-        2
-      ],
-      [
-        "Monitoring & Alerting",
-        "Operations",
-        "Strong",
-        "Creating CloudWatch metrics, logs, health checks, alarms, and notification workflows for infrastructure visibility.",
-        3
-      ],
-      [
-        "Security Remediation",
-        "Security",
-        "Strong",
-        "Handling vulnerability findings, OS patching, IAM access review, DNS/email security, and hardening activities.",
-        4
-      ]
+      ["AWS Cloud Infrastructure", "Cloud", "Advanced", "Managing AWS services such as EC2, VPC, IAM, S3, Route 53, ALB/NLB, CloudWatch, Lambda, and EventBridge.", 1],
+      ["CI/CD & Deployment Automation", "DevOps", "Advanced", "Building practical deployment workflows using Git, GitHub, Nginx, PM2, and automation scripts.", 2],
+      ["Monitoring & Alerting", "Operations", "Strong", "Creating CloudWatch metrics, logs, health checks, alarms, and notification workflows for infrastructure visibility.", 3],
+      ["Security Remediation", "Security", "Strong", "Handling vulnerability findings, OS patching, IAM access review, DNS/email security, and hardening activities.", 4]
     ];
 
     for (const item of skills) {
-      await run(
-        "INSERT INTO skills (name, category, level, description, sort_order) VALUES (?, ?, ?, ?, ?)",
-        item
-      );
+      await run("INSERT INTO skills (name, category, level, description, sort_order) VALUES (?, ?, ?, ?, ?)", item);
     }
   }
 
   const experienceCount = await get("SELECT COUNT(*) AS count FROM experiences");
   if (experienceCount.count === 0) {
     const experiences = [
-      [
-        "Cloud / DevOps Engineer",
-        "AWS Infrastructure Operations",
-        "2023 - Present",
-        "Managing cloud infrastructure, deployment pipeline, monitoring, automation, troubleshooting, and security remediation for production and non-production environments.",
-        "AWS,CI/CD,CloudWatch,Automation",
-        1
-      ],
-      [
-        "Infrastructure Automation & Monitoring",
-        "Cloud Operations Project",
-        "Project Experience",
-        "Created automation scripts and monitoring workflows to support infrastructure reliability and faster operational response.",
-        "Lambda,CloudWatch,SNS,Linux",
-        2
-      ]
+      ["Cloud / DevOps Engineer", "AWS Infrastructure Operations", "2023 - Present", "Managing cloud infrastructure, deployment pipeline, monitoring, automation, troubleshooting, and security remediation for production and non-production environments.", "AWS,CI/CD,CloudWatch,Automation", 1],
+      ["Infrastructure Automation & Monitoring", "Cloud Operations Project", "Project Experience", "Created automation scripts and monitoring workflows to support infrastructure reliability and faster operational response.", "Lambda,CloudWatch,SNS,Linux", 2]
     ];
 
     for (const item of experiences) {
-      await run(
-        "INSERT INTO experiences (title, company, period, description, tags, sort_order) VALUES (?, ?, ?, ?, ?, ?)",
-        item
-      );
+      await run("INSERT INTO experiences (title, company, period, description, tags, sort_order) VALUES (?, ?, ?, ?, ?, ?)", item);
     }
   }
 
@@ -237,17 +202,25 @@ async function seedDefaultPortfolioData() {
   if (contactCount.count === 0) {
     const contacts = [
       ["Email", "Email", "jhonreimons90@gmail.com", "mailto:jhonreimons90@gmail.com", 1],
-      ["LinkedIn", "LinkedIn", "linkedin.com/in/your-profile", "https://www.linkedin.com/", 2],
-      ["GitHub", "GitHub", "github.com/jhonreimons", "https://github.com/jhonreimons", 3],
-      ["Instagram", "Instagram", "@yourusername", "https://www.instagram.com/", 4]
+      ["Phone", "Phone", "+62 812-xxxx-xxxx", "tel:+62812xxxxxxxx", 2],
+      ["LinkedIn", "LinkedIn", "linkedin.com/in/your-profile", "https://www.linkedin.com/", 3],
+      ["GitHub", "GitHub", "github.com/jhonreimons", "https://github.com/jhonreimons", 4],
+      ["Instagram", "Instagram", "@yourusername", "https://www.instagram.com/", 5]
     ];
 
     for (const item of contacts) {
-      await run(
-        "INSERT INTO contacts (type, label, value, url, sort_order) VALUES (?, ?, ?, ?, ?)",
-        item
-      );
+      await run("INSERT INTO contacts (type, label, value, url, sort_order) VALUES (?, ?, ?, ?, ?)", item);
     }
+  }
+}
+
+async function ensurePhoneContact() {
+  const existingPhone = await get("SELECT id FROM contacts WHERE LOWER(type) = 'phone' LIMIT 1");
+  if (!existingPhone) {
+    await run(
+      "INSERT INTO contacts (type, label, value, url, sort_order) VALUES (?, ?, ?, ?, ?)",
+      ["Phone", "Phone", "+62 812-xxxx-xxxx", "tel:+62812xxxxxxxx", 2]
+    );
   }
 }
 

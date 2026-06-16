@@ -11,6 +11,7 @@ const { initDatabase, run, get, all } = require("./db");
 const app = express();
 const PORT = process.env.PORT || 3000;
 const uploadDir = process.env.UPLOAD_DIR || path.join(__dirname, "../uploads");
+const publicDir = path.join(__dirname, "../public");
 
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
@@ -61,7 +62,7 @@ app.use(
   })
 );
 
-app.use(express.static(path.join(__dirname, "../public")));
+app.use(express.static(publicDir));
 app.use("/uploads", express.static(uploadDir));
 
 function requireAuth(req, res, next) {
@@ -107,6 +108,19 @@ app.get("/health", (req, res) => {
     service: "my-portfolio",
     timestamp: new Date().toISOString()
   });
+});
+
+// Explicit routes so /admin.html will not fall back to index.html
+app.get("/", (req, res) => {
+  res.sendFile(path.join(publicDir, "index.html"));
+});
+
+app.get("/admin", (req, res) => {
+  res.redirect("/admin.html");
+});
+
+app.get("/admin.html", (req, res) => {
+  res.sendFile(path.join(publicDir, "admin.html"));
 });
 
 // Auth
@@ -370,9 +384,9 @@ app.delete("/api/admin/contacts/:id", requireAuth, async (req, res) => {
   res.json({ message: "Contact deleted." });
 });
 
-// Fallback
+// Fallback only for public site, after all API/admin routes
 app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/index.html"));
+  res.sendFile(path.join(publicDir, "index.html"));
 });
 
 // Error handler

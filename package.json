@@ -1,7 +1,7 @@
 {
-  "name": "my-portfolio-polished",
+  "name": "my-portfolio-full-fixed",
   "version": "1.0.0",
-  "description": "Polished dynamic DevOps portfolio with Express, SQLite, admin CRUD, profile photo, and fresh responsive theme",
+  "description": "Dynamic DevOps portfolio with Express, SQLite, admin CRUD, photo upload, fixed mobile layout, and selectable contacts",
   "main": "src/app.js",
   "scripts": {
     "start": "node src/app.js",

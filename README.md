@@ -1,4 +1,4 @@
-# My Portfolio CRUD + About + Photo + Animation
+# My Portfolio Polished
 
 Dynamic portfolio app using:
 
@@ -9,10 +9,9 @@ Dynamic portfolio app using:
 - multer
 - HTML + Tailwind CDN
 
-Dynamic/editable data:
+Dynamic data:
 
-- Hero text
-- About Me
+- Hero and About content
 - Profile photo
 - Skills
 - Experience
@@ -36,13 +35,6 @@ Admin page:
 
 ```text
 http://127.0.0.1:3000/admin.html
-```
-
-Default login from `.env`:
-
-```text
-ADMIN_USERNAME=admin
-ADMIN_PASSWORD=ChangeMe123!
 ```
 
 ## Production note

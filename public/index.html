@@ -1,246 +1,445 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="id" class="scroll-smooth">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>Jhon Reimon Siagian | DevOps Engineer</title>
-  <meta name="description" content="Fresh animated DevOps portfolio powered by Express and SQLite." />
+  <meta name="description" content="Modern dynamic DevOps portfolio powered by Express and SQLite." />
+
   <script src="https://cdn.tailwindcss.com"></script>
+
   <script>
     tailwind.config = {
       theme: {
         extend: {
           colors: {
-            ink: '#182033',
-            mist: '#eef7f5',
-            aqua: '#10b6c7',
-            cobalt: '#315efb',
-            plum: '#7c4dff',
-            coral: '#ff7a59',
-            lime: '#96d36a'
+            ink: "#172033",
+            muted: "#64748b",
+            ocean: "#2563eb",
+            aqua: "#06b6d4",
+            mint: "#14b8a6",
+            coral: "#f97316",
+            grape: "#7c3aed"
           },
           boxShadow: {
-            soft: '0 24px 80px rgba(24, 32, 51, 0.12)',
-            glow: '0 24px 90px rgba(49, 94, 251, 0.22)'
-          },
-          animation: {
-            float: 'float 6s ease-in-out infinite',
-            floatSlow: 'float 9s ease-in-out infinite',
-            orbit: 'orbit 16s linear infinite',
-            shine: 'shine 6s ease-in-out infinite',
-            marquee: 'marquee 26s linear infinite'
-          },
-          keyframes: {
-            float: { '0%,100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-18px)' } },
-            orbit: { '0%': { transform: 'rotate(0deg) translateX(18px) rotate(0deg)' }, '100%': { transform: 'rotate(360deg) translateX(18px) rotate(-360deg)' } },
-            shine: { '0%,100%': { backgroundPosition: '0% 50%' }, '50%': { backgroundPosition: '100% 50%' } },
-            marquee: { '0%': { transform: 'translateX(0)' }, '100%': { transform: 'translateX(-50%)' } }
+            soft: "0 18px 60px rgba(15, 23, 42, 0.10)",
+            card: "0 10px 35px rgba(15, 23, 42, 0.08)"
           }
         }
       }
     }
   </script>
+
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
-    * { font-family: Inter, system-ui, sans-serif; }
-    body {
-      background:
-        radial-gradient(circle at 8% 14%, rgba(16,182,199,.22), transparent 28%),
-        radial-gradient(circle at 88% 12%, rgba(124,77,255,.20), transparent 26%),
-        radial-gradient(circle at 76% 88%, rgba(255,122,89,.18), transparent 30%),
-        linear-gradient(135deg, #f5fbf9 0%, #edf6ff 45%, #f6f0ff 100%);
+
+    :root {
+      --bg-1: #eef8ff;
+      --bg-2: #f7f4ff;
+      --bg-3: #ecfbf7;
+      --ink: #172033;
     }
-    .glass { background: rgba(255,255,255,.68); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,.72); }
-    .gradient-text { background: linear-gradient(90deg,#315efb,#10b6c7,#7c4dff,#ff7a59); background-size: 260% 260%; -webkit-background-clip:text; background-clip:text; color:transparent; animation: shine 6s ease-in-out infinite; }
-    .reveal { opacity: 0; transform: translateY(28px) scale(.98); transition: all .8s cubic-bezier(.2,.8,.2,1); }
-    .reveal.active { opacity: 1; transform: translateY(0) scale(1); }
-    .noise:before { content:''; position:fixed; inset:0; pointer-events:none; opacity:.035; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Inter, system-ui, sans-serif;
+      background:
+        radial-gradient(circle at 8% 12%, rgba(6, 182, 212, 0.16), transparent 28rem),
+        radial-gradient(circle at 92% 8%, rgba(124, 58, 237, 0.12), transparent 26rem),
+        radial-gradient(circle at 80% 82%, rgba(249, 115, 22, 0.09), transparent 24rem),
+        linear-gradient(135deg, var(--bg-1) 0%, #f8fbff 44%, var(--bg-2) 100%);
+      color: var(--ink);
+      overflow-x: hidden;
+    }
+
+    .noise {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -1;
+      opacity: .42;
+      background-image:
+        linear-gradient(rgba(23, 32, 51, 0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(23, 32, 51, 0.025) 1px, transparent 1px);
+      background-size: 32px 32px;
+      mask-image: linear-gradient(to bottom, black, transparent 90%);
+    }
+
+    .glass {
+      background: rgba(255, 255, 255, 0.66);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.78);
+    }
+
+    .gradient-text {
+      background: linear-gradient(92deg, #2563eb 0%, #06b6d4 48%, #14b8a6 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .orb {
+      position: absolute;
+      border-radius: 999px;
+      filter: blur(12px);
+      opacity: .72;
+      animation: floatOrb 9s ease-in-out infinite;
+    }
+
+    .orb:nth-child(2) {
+      animation-delay: -2.5s;
+    }
+
+    .orb:nth-child(3) {
+      animation-delay: -5s;
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity .75s ease, transform .75s ease;
+    }
+
+    .reveal.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .marquee-track {
+      animation: marquee 22s linear infinite;
+    }
+
+    .marquee:hover .marquee-track {
+      animation-play-state: paused;
+    }
+
+    .profile-card {
+      animation: cardFloat 6.5s ease-in-out infinite;
+    }
+
+    @keyframes floatOrb {
+      0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+      50% { transform: translate3d(10px, -16px, 0) scale(1.05); }
+    }
+
+    @keyframes cardFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    @keyframes marquee {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .orb,
+      .profile-card,
+      .marquee-track {
+        animation: none;
+      }
+
+      .reveal {
+        opacity: 1;
+        transform: none;
+      }
+    }
   </style>
 </head>
-<body class="noise text-ink antialiased selection:bg-aqua selection:text-white">
-  <header class="sticky top-0 z-40 px-5 py-4">
-    <nav class="mx-auto flex max-w-7xl items-center justify-between rounded-[1.6rem] px-5 py-4 glass shadow-soft">
+
+<body>
+  <div class="noise"></div>
+
+  <header class="sticky top-0 z-40 px-4 py-4">
+    <nav class="mx-auto flex max-w-6xl items-center justify-between rounded-3xl px-4 py-3 glass shadow-soft">
       <a href="/" class="flex items-center gap-3">
-        <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-cobalt via-aqua to-plum text-lg font-black text-white shadow-glow">JR</div>
+        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-ocean via-aqua to-mint text-sm font-black text-white shadow-card">
+          JR
+        </div>
         <div>
-          <p class="font-black text-ink">Jhon Reimon Siagian</p>
-          <p class="text-xs font-semibold text-slate-500">DevOps Engineer</p>
+          <p class="text-sm font-black text-ink sm:text-base">Jhon Reimon Siagian</p>
+          <p class="text-xs font-semibold text-muted">DevOps Engineer</p>
         </div>
       </a>
-      <nav class="hidden gap-6 text-sm font-bold text-slate-600 md:flex">
-        <a href="#about" class="hover:text-cobalt">About</a>
-        <a href="#skills" class="hover:text-cobalt">Skills</a>
-        <a href="#experience" class="hover:text-cobalt">Experience</a>
-        <a href="#contact" class="hover:text-cobalt">Contact</a>
+
+      <nav class="hidden gap-5 text-sm font800 font-bold text-slate-600 md:flex">
+        <a href="#about" class="transition hover:text-ocean">About</a>
+        <a href="#skills" class="transition hover:text-ocean">Skills</a>
+        <a href="#experience" class="transition hover:text-ocean">Experience</a>
+        <a href="#contact" class="transition hover:text-ocean">Contact</a>
       </nav>
     </nav>
   </header>
 
   <main>
-    <section class="mx-auto grid min-h-[82vh] max-w-7xl items-center gap-10 px-5 py-16 lg:grid-cols-[1.08fr_.92fr]">
-      <div class="reveal">
-        <div id="heroBadge" class="mb-6 inline-flex rounded-full border border-white/70 bg-white/70 px-4 py-2 text-sm font-black text-cobalt shadow-sm">Cloud Infrastructure • Automation • Reliability</div>
-        <h1 class="max-w-5xl text-5xl font-black leading-[.95] tracking-tight text-ink sm:text-7xl lg:text-8xl">
+    <section class="relative mx-auto grid min-h-[calc(100vh-88px)] max-w-6xl items-center gap-10 px-4 pb-16 pt-8 lg:grid-cols-[1.06fr_0.94fr]">
+      <div class="pointer-events-none absolute right-5 top-16 hidden h-72 w-72 rounded-full bg-cyan-300/20 blur-3xl lg:block"></div>
+
+      <div class="reveal relative z-10">
+        <div id="heroBadge" class="mb-5 inline-flex rounded-full border border-white/80 bg-white/70 px-4 py-2 text-xs font900 font-black tracking-wide text-ocean shadow-card">
+          Cloud Infrastructure • Automation • Reliability
+        </div>
+
+        <h1 class="max-w-4xl text-[clamp(2.75rem,6vw,5.8rem)] font-black leading-[0.98] tracking-[-0.055em] text-ink">
           <span id="heroTitleLine1">Building reliable cloud systems with</span>
           <span id="heroTitleHighlight" class="gradient-text block">DevOps precision.</span>
         </h1>
-        <p id="heroDescription" class="mt-7 max-w-2xl text-lg leading-8 text-slate-600">I am a DevOps / Cloud Engineer focused on AWS, CI/CD, monitoring, automation, and scalable, secure, and maintainable cloud infrastructure.</p>
+
+        <p id="heroDescription" class="mt-6 max-w-2xl text-[clamp(1rem,1.3vw,1.15rem)] leading-8 text-slate-600">
+          I am a DevOps / Cloud Engineer focused on AWS, CI/CD, monitoring, automation, and scalable, secure, and maintainable cloud infrastructure.
+        </p>
+
         <div class="mt-8 flex flex-col gap-3 sm:flex-row">
-          <a href="#contact" class="rounded-2xl bg-ink px-6 py-3 text-center text-sm font-black text-white shadow-soft transition hover:-translate-y-1">Contact Me</a>
-          <a href="#skills" class="rounded-2xl border border-white bg-white/70 px-6 py-3 text-center text-sm font-black text-ink shadow-sm transition hover:-translate-y-1">View Skills</a>
+          <a id="heroPrimaryButton" href="#contact" class="rounded-2xl bg-ink px-5 py-3 text-center text-sm font-black text-white shadow-card transition hover:-translate-y-1 hover:bg-slate-800">
+            Contact Me
+          </a>
+          <a id="heroSecondaryButton" href="#skills" class="rounded-2xl border border-white/80 bg-white/72 px-5 py-3 text-center text-sm font-black text-ink shadow-card transition hover:-translate-y-1">
+            View Skills
+          </a>
         </div>
-        <div class="mt-10 overflow-hidden rounded-[1.5rem] border border-white/70 bg-white/55 py-4 shadow-soft">
-          <div class="flex w-max animate-marquee gap-8 px-5 text-sm font-black text-slate-500">
-            <span>AWS Cloud</span><span>CI/CD</span><span>Linux</span><span>Nginx</span><span>Monitoring</span><span>Automation</span><span>Security</span><span>Route 53</span>
-            <span>AWS Cloud</span><span>CI/CD</span><span>Linux</span><span>Nginx</span><span>Monitoring</span><span>Automation</span><span>Security</span><span>Route 53</span>
-          </div>
+
+        <div class="marquee mt-10 max-w-3xl overflow-hidden rounded-2xl border border-white/80 bg-white/58 py-3 shadow-card">
+          <div id="marqueeTrack" class="marquee-track flex w-max gap-3 whitespace-nowrap px-3 text-xs font-black text-slate-600"></div>
         </div>
       </div>
 
-      <div class="reveal relative">
-        <div class="absolute -left-6 top-10 h-24 w-24 rounded-full bg-aqua/25 blur-2xl animate-float"></div>
-        <div class="absolute -right-4 bottom-20 h-28 w-28 rounded-full bg-coral/25 blur-2xl animate-floatSlow"></div>
-        <div class="relative rounded-[2.5rem] p-4 glass shadow-glow">
-          <div class="absolute -right-4 -top-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-white shadow-soft animate-orbit">
-            <span class="text-xl">⚙️</span>
-          </div>
-          <div class="overflow-hidden rounded-[2rem] bg-gradient-to-br from-cobalt via-aqua to-plum p-3">
-            <div id="photoBox" class="flex aspect-[4/5] items-center justify-center overflow-hidden rounded-[1.55rem] bg-white/20">
+      <div class="reveal relative mx-auto w-full max-w-md lg:ml-auto">
+        <div class="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-blue-500/18 via-cyan-400/18 to-emerald-400/14 blur-2xl"></div>
+
+        <div class="profile-card relative overflow-hidden rounded-[2rem] bg-white/78 p-4 shadow-soft ring-1 ring-white/80">
+          <div class="relative overflow-hidden rounded-[1.55rem] bg-gradient-to-br from-ocean via-aqua to-grape p-2">
+            <div class="orb left-6 top-8 h-20 w-20 bg-white/28"></div>
+            <div class="orb bottom-8 right-7 h-24 w-24 bg-cyan-200/32"></div>
+            <div class="orb right-14 top-28 h-16 w-16 bg-emerald-200/30"></div>
+
+            <div id="photoBox" class="relative z-10 flex aspect-[4/4.6] items-center justify-center overflow-hidden rounded-[1.25rem] bg-white/18">
               <div class="text-center text-white">
-                <div class="mx-auto flex h-32 w-32 items-center justify-center rounded-full bg-white/20 text-5xl font-black">JR</div>
-                <p class="mt-5 text-lg font-black">Upload profile photo from admin</p>
+                <div class="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-white/22 text-3xl font-black">JR</div>
+                <p class="mt-4 text-sm font-black">Profile photo</p>
               </div>
             </div>
           </div>
-          <div class="mt-5 rounded-[1.8rem] bg-ink p-5 text-white">
-            <p id="photoHeadline" class="text-sm font-black text-aqua">DevOps Engineer</p>
-            <p class="mt-2 text-2xl font-black">Jhon Reimon Siagian</p>
-            <p class="mt-3 text-sm leading-7 text-slate-300">Focused on reliable cloud infrastructure, deployment automation, monitoring, and security-aware operations.</p>
+
+          <div class="mt-4 rounded-[1.5rem] bg-ink p-5 text-white">
+            <p id="photoHeadline" class="text-xs font-black uppercase tracking-[0.18em] text-cyan-300">DevOps Engineer</p>
+            <p class="mt-2 text-2xl font-black leading-tight">Jhon Reimon Siagian</p>
+            <p class="mt-3 text-sm leading-7 text-slate-300">
+              Focused on reliable infrastructure, deployment automation, monitoring, and security-aware operations.
+            </p>
           </div>
         </div>
       </div>
     </section>
 
-    <section id="about" class="mx-auto max-w-7xl px-5 py-20">
-      <div class="reveal grid gap-8 rounded-[2.3rem] p-8 glass shadow-soft lg:grid-cols-[.85fr_1.15fr]">
+    <section id="about" class="mx-auto max-w-6xl px-4 py-14">
+      <div class="reveal grid gap-8 rounded-[2rem] bg-white/70 p-6 shadow-soft ring-1 ring-white/80 md:p-8 lg:grid-cols-[0.9fr_1.1fr]">
         <div>
-          <p id="aboutLabel" class="mb-3 text-sm font-black uppercase tracking-[.25em] text-cobalt">About Me</p>
-          <h2 id="aboutTitle" class="text-4xl font-black leading-tight text-ink sm:text-5xl">I bridge infrastructure, automation, and reliability.</h2>
+          <p id="aboutLabel" class="mb-3 text-xs font-black uppercase tracking-[0.3em] text-ocean">ABOUT ME</p>
+          <h2 id="aboutTitle" class="max-w-xl text-[clamp(2rem,4vw,3.5rem)] font-black leading-[1.02] tracking-[-0.04em] text-ink">
+            I bridge infrastructure, automation, and reliability.
+          </h2>
         </div>
-        <p id="aboutBody" class="text-lg leading-9 text-slate-600">I have experience managing AWS infrastructure, deployment pipelines, troubleshooting, monitoring, and automation. I work with a practical, detail-oriented approach focused on reliability, security, and continuous improvement.</p>
+
+        <div class="flex items-center">
+          <p id="aboutBody" class="max-w-2xl text-base leading-8 text-slate-600">
+            I have experience managing AWS infrastructure, deployment pipelines, troubleshooting, monitoring, and automation. I work with a practical, detail-oriented approach focused on reliability, security, and continuous improvement.
+          </p>
+        </div>
       </div>
     </section>
 
-    <section id="skills" class="mx-auto max-w-7xl px-5 py-20">
-      <div class="reveal mb-10">
-        <p class="mb-3 text-sm font-black uppercase tracking-[.25em] text-cobalt">Skills</p>
-        <h2 class="text-4xl font-black text-ink sm:text-5xl">Technical Skills</h2>
+    <section id="skills" class="mx-auto max-w-6xl px-4 py-14">
+      <div class="reveal mb-8">
+        <p class="mb-3 text-xs font-black uppercase tracking-[0.3em] text-ocean">SKILLS</p>
+        <h2 class="text-[clamp(2rem,4vw,3.2rem)] font-black tracking-[-0.04em] text-ink">Technical Skills</h2>
       </div>
-      <div id="skillsGrid" class="grid gap-5 md:grid-cols-2 lg:grid-cols-4"></div>
+
+      <div id="skillsGrid" class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4"></div>
     </section>
 
-    <section id="experience" class="mx-auto max-w-7xl px-5 py-20">
-      <div class="reveal mb-10">
-        <p class="mb-3 text-sm font-black uppercase tracking-[.25em] text-cobalt">Experience</p>
-        <h2 class="text-4xl font-black text-ink sm:text-5xl">Professional Experience</h2>
+    <section id="experience" class="mx-auto max-w-6xl px-4 py-14">
+      <div class="reveal mb-8">
+        <p class="mb-3 text-xs font-black uppercase tracking-[0.3em] text-ocean">EXPERIENCE</p>
+        <h2 class="text-[clamp(2rem,4vw,3.2rem)] font-black tracking-[-0.04em] text-ink">Professional Experience</h2>
       </div>
+
       <div id="experienceList" class="space-y-5"></div>
     </section>
 
-    <section id="contact" class="mx-auto max-w-7xl px-5 py-20">
-      <div class="reveal rounded-[2.5rem] bg-ink p-8 shadow-glow">
-        <p class="mb-3 text-sm font-black uppercase tracking-[.25em] text-aqua">Contact</p>
-        <h2 class="text-4xl font-black text-white sm:text-5xl">Let's Connect</h2>
-        <p class="mt-4 text-slate-300">Reach out for DevOps, cloud infrastructure, automation, or new opportunities.</p>
-        <div id="contactGrid" class="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4"></div>
+    <section id="contact" class="mx-auto max-w-6xl px-4 py-14 pb-20">
+      <div class="reveal rounded-[2rem] bg-ink p-6 shadow-soft md:p-8">
+        <p class="mb-3 text-xs font-black uppercase tracking-[0.3em] text-cyan-300">CONTACT</p>
+        <h2 class="text-[clamp(2rem,4vw,3.2rem)] font-black tracking-[-0.04em] text-white">Let's Connect</h2>
+        <p class="mt-3 max-w-2xl text-base leading-7 text-slate-300">Feel free to reach out for DevOps, Cloud Infrastructure, or new opportunities.</p>
+        <div id="contactGrid" class="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"></div>
       </div>
     </section>
   </main>
 
-  <footer class="px-5 py-8 text-center text-sm font-semibold text-slate-500">© <span id="year"></span> Jhon Reimon Siagian. Built with HTML, Tailwind CDN, Express, and SQLite.</footer>
+  <footer class="px-4 py-8 text-center text-sm font-semibold text-slate-500">
+    © <span id="year"></span> Jhon Reimon Siagian. Built with HTML, Tailwind CDN, Express, and SQLite.
+  </footer>
 
   <script>
-    function escapeHtml(value) { return String(value || '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;'); }
-    function contactTarget(url) { return url && url.startsWith('http') ? '_blank' : '_self'; }
-    function skillColor(index) { return ['from-cobalt to-aqua','from-plum to-pink-500','from-coral to-orange-400','from-lime to-aqua'][index % 4]; }
+    function escapeHtml(value) {
+      return String(value || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function contactTarget(url) {
+      if (!url) return "_self";
+      return url.startsWith("http") ? "_blank" : "_self";
+    }
+
+    function skillColor(index) {
+      const colors = [
+        "from-blue-500 to-cyan-400",
+        "from-violet-500 to-fuchsia-400",
+        "from-orange-500 to-rose-400",
+        "from-emerald-500 to-teal-400"
+      ];
+      return colors[index % colors.length];
+    }
+
+    function splitItems(value) {
+      return String(value || "")
+        .split(",")
+        .map(item => item.trim())
+        .filter(Boolean);
+    }
 
     async function loadPortfolio() {
-      const response = await fetch('/api/portfolio');
+      const response = await fetch("/api/portfolio");
       const data = await response.json();
-      renderContent(data.content);
+
+      renderContent(data.content || {});
       renderPhoto(data.profilePhoto);
       renderSkills(data.skills || []);
       renderExperiences(data.experiences || []);
       renderContacts(data.contacts || []);
-      revealNow();
+      activateReveal();
     }
 
-    function setText(id, value) { if (value) document.getElementById(id).textContent = value; }
     function renderContent(content) {
-      if (!content) return;
-      setText('heroBadge', content.hero_badge);
-      setText('heroTitleLine1', content.hero_title_line1);
-      setText('heroTitleHighlight', content.hero_title_highlight);
-      setText('heroDescription', content.hero_description);
-      setText('aboutLabel', content.about_label);
-      setText('aboutTitle', content.about_title);
-      setText('aboutBody', content.about_body);
+      document.getElementById("heroBadge").textContent = content.hero_badge || "Cloud Infrastructure • Automation • Reliability";
+      document.getElementById("heroTitleLine1").textContent = content.hero_title_line1 || "Building reliable cloud systems with";
+      document.getElementById("heroTitleHighlight").textContent = content.hero_title_highlight || "DevOps precision.";
+      document.getElementById("heroDescription").textContent = content.hero_description || "";
+      document.getElementById("heroPrimaryButton").textContent = content.hero_primary_button || "Contact Me";
+      document.getElementById("heroSecondaryButton").textContent = content.hero_secondary_button || "View Skills";
+      document.getElementById("aboutLabel").textContent = content.about_label || "ABOUT ME";
+      document.getElementById("aboutTitle").textContent = content.about_title || "I bridge infrastructure, automation, and reliability.";
+      document.getElementById("aboutBody").textContent = content.about_body || "";
+
+      const marqueeItems = splitItems(content.marquee_items || "AWS Cloud,CI/CD,Linux,Nginx,Monitoring,Automation,Security,Route 53");
+      const repeated = [...marqueeItems, ...marqueeItems, ...marqueeItems];
+      document.getElementById("marqueeTrack").innerHTML = repeated.map(item => `
+        <span class="rounded-xl bg-white/70 px-4 py-2 shadow-sm">${escapeHtml(item)}</span>
+      `).join("");
     }
 
     function renderPhoto(photo) {
-      const box = document.getElementById('photoBox');
-      if (photo && photo.headline) document.getElementById('photoHeadline').textContent = photo.headline;
-      if (photo && photo.image_path) box.innerHTML = `<img src="${escapeHtml(photo.image_path)}" alt="${escapeHtml(photo.alt_text || 'Profile photo')}" class="h-full w-full object-cover" />`;
+      const box = document.getElementById("photoBox");
+      const headline = document.getElementById("photoHeadline");
+
+      if (photo && photo.headline) {
+        headline.textContent = photo.headline;
+      }
+
+      if (photo && photo.image_path) {
+        box.innerHTML = `
+          <img src="${escapeHtml(photo.image_path)}" alt="${escapeHtml(photo.alt_text || "Profile photo")}" class="h-full w-full object-cover" />
+        `;
+      }
     }
 
     function renderSkills(skills) {
-      const container = document.getElementById('skillsGrid');
-      if (!skills.length) { container.innerHTML = `<p class="text-slate-500">No skills available.</p>`; return; }
+      const container = document.getElementById("skillsGrid");
+
+      if (!skills.length) {
+        container.innerHTML = `<p class="text-slate-500">No skills available.</p>`;
+        return;
+      }
+
       container.innerHTML = skills.map((skill, index) => `
-        <div class="reveal group rounded-[2rem] bg-white/70 p-6 shadow-soft ring-1 ring-white/80 transition hover:-translate-y-2 hover:bg-white/90">
-          <div class="mb-5 h-2 w-20 rounded-full bg-gradient-to-r ${skillColor(index)}"></div>
+        <article class="reveal rounded-[1.6rem] bg-white/74 p-5 shadow-card ring-1 ring-white/80 transition duration-300 hover:-translate-y-1 hover:shadow-soft">
+          <div class="mb-5 h-1.5 w-16 rounded-full bg-gradient-to-r ${skillColor(index)}"></div>
           <div class="mb-4 flex items-center justify-between gap-3">
-            <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-600">${escapeHtml(skill.category)}</span>
-            <span class="text-xs font-black text-cobalt">${escapeHtml(skill.level)}</span>
+            <span class="rounded-full bg-slate-100 px-3 py-1 text-[11px] font-black text-slate-600">${escapeHtml(skill.category)}</span>
+            <span class="text-[11px] font-black text-ocean">${escapeHtml(skill.level)}</span>
           </div>
-          <h3 class="text-lg font-black text-ink">${escapeHtml(skill.name)}</h3>
+          <h3 class="text-lg font-black leading-snug text-ink">${escapeHtml(skill.name)}</h3>
           <p class="mt-3 text-sm leading-7 text-slate-600">${escapeHtml(skill.description)}</p>
-        </div>`).join('');
+        </article>
+      `).join("");
     }
 
     function renderExperiences(experiences) {
-      const container = document.getElementById('experienceList');
-      if (!experiences.length) { container.innerHTML = `<p class="text-slate-500">No experience available.</p>`; return; }
+      const container = document.getElementById("experienceList");
+
+      if (!experiences.length) {
+        container.innerHTML = `<p class="text-slate-500">No experience available.</p>`;
+        return;
+      }
+
       container.innerHTML = experiences.map(item => `
-        <div class="reveal rounded-[2rem] bg-white/70 p-6 shadow-soft ring-1 ring-white/80 transition hover:-translate-y-1 hover:bg-white/90">
+        <article class="reveal rounded-[1.7rem] bg-white/74 p-6 shadow-card ring-1 ring-white/80 transition duration-300 hover:-translate-y-1 hover:shadow-soft">
           <div class="flex flex-col justify-between gap-4 md:flex-row md:items-start">
-            <div><p class="text-sm font-black text-cobalt">${escapeHtml(item.period)}</p><h3 class="mt-2 text-2xl font-black text-ink">${escapeHtml(item.title)}</h3><p class="mt-1 text-sm font-semibold text-slate-500">${escapeHtml(item.company)}</p></div>
-            <div class="flex flex-wrap gap-2">${(item.tags || []).map(tag => `<span class="rounded-full bg-slate-100 px-3 py-2 text-xs font-bold text-slate-600">${escapeHtml(tag)}</span>`).join('')}</div>
+            <div>
+              <p class="text-xs font-black uppercase tracking-[0.18em] text-ocean">${escapeHtml(item.period)}</p>
+              <h3 class="mt-2 text-2xl font-black leading-tight text-ink">${escapeHtml(item.title)}</h3>
+              <p class="mt-1 text-sm font-bold text-slate-500">${escapeHtml(item.company)}</p>
+            </div>
+            <div class="flex flex-wrap gap-2 md:justify-end">
+              ${(item.tags || []).map(tag => `<span class="rounded-full bg-slate-100 px-3 py-2 text-xs font-bold text-slate-600">${escapeHtml(tag)}</span>`).join("")}
+            </div>
           </div>
           <p class="mt-4 leading-8 text-slate-600">${escapeHtml(item.description)}</p>
-        </div>`).join('');
+        </article>
+      `).join("");
     }
 
     function renderContacts(contacts) {
-      const container = document.getElementById('contactGrid');
-      if (!contacts.length) { container.innerHTML = `<p class="text-slate-400">No contact available.</p>`; return; }
+      const container = document.getElementById("contactGrid");
+
+      if (!contacts.length) {
+        container.innerHTML = `<p class="text-slate-400">No contact available.</p>`;
+        return;
+      }
+
       container.innerHTML = contacts.map(contact => `
-        <a href="${escapeHtml(contact.url || '#')}" target="${contactTarget(contact.url)}" class="rounded-3xl bg-white/10 p-5 ring-1 ring-white/10 transition hover:-translate-y-1 hover:bg-white/15">
-          <p class="text-sm font-black text-aqua">${escapeHtml(contact.label || contact.type)}</p>
-          <p class="mt-2 break-words text-sm font-medium text-white">${escapeHtml(contact.value)}</p>
-        </a>`).join('');
+        <a href="${escapeHtml(contact.url || "#")}" target="${contactTarget(contact.url)}" class="rounded-2xl bg-white/8 p-5 ring-1 ring-white/10 transition hover:-translate-y-1 hover:bg-white/12">
+          <p class="text-sm font-black text-cyan-300">${escapeHtml(contact.label || contact.type)}</p>
+          <p class="mt-2 break-words text-sm font-semibold text-white">${escapeHtml(contact.value)}</p>
+        </a>
+      `).join("");
     }
 
-    function revealNow() {
-      const elements = document.querySelectorAll('.reveal');
-      const observer = new IntersectionObserver(entries => {
-        entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('active'); });
-      }, { threshold: .12 });
-      elements.forEach(el => observer.observe(el));
+    function activateReveal() {
+      const reveals = document.querySelectorAll(".reveal");
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) entry.target.classList.add("active");
+        });
+      }, { threshold: 0.12 });
+
+      reveals.forEach(item => observer.observe(item));
     }
 
-    document.getElementById('year').textContent = new Date().getFullYear();
-    loadPortfolio().catch(error => { console.error(error); document.getElementById('skillsGrid').innerHTML = `<p class="text-red-500">Failed to load portfolio data.</p>`; });
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    loadPortfolio().catch(error => {
+      console.error(error);
+      document.getElementById("skillsGrid").innerHTML = `<p class="text-red-500">Failed to load portfolio data.</p>`;
+    });
   </script>
 </body>
 </html>

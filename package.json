@@ -1,7 +1,7 @@
 {
-  "name": "my-portfolio-crud-about-animated",
+  "name": "my-portfolio-polished",
   "version": "1.0.0",
-  "description": "Fresh animated dynamic DevOps portfolio with Express, SQLite, admin CRUD, editable content, and profile photo upload",
+  "description": "Polished dynamic DevOps portfolio with Express, SQLite, admin CRUD, profile photo, and fresh responsive theme",
   "main": "src/app.js",
   "scripts": {
     "start": "node src/app.js",
